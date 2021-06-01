@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<extension type="plugin" version="3.8" group="fields" method="upgrade">
+	<name>plg_fields_plupload</name>
+	<author>Manuel P. Ayala</author>
+	<creationDate>May 2021</creationDate>
+	<copyright>(C) 2021 Manuel P. Ayala. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+	<authorEmail>mperaya@gmail.com</authorEmail>
+	<version>1.0.0</version>
+	<description>PLG_FIELDS_PLUPLOAD_XML_DESCRIPTION</description>
+	<scriptfile>script.php</scriptfile>
+	<files>
+		<folder>fields</folder>
+		<folder>language</folder>
+		<folder>layouts</folder>
+		<folder>params</folder>
+		<folder>tmpl</folder>
+		<filename plugin="plupload">plupload.php</filename>
+		<filename plugin="plupload">pluploadhandler.php</filename>
+	</files>
+        <media folder="media" destination="plg_fields_plupload">
+                <folder>css</folder>
+                <folder>js</folder>
+        </media>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field
+					name="upload_path"
+					type="text"
+					label="PLG_FIELDS_PLUPLOAD_PARAMS_UPLOAD_PATH_LABEL"
+					description="PLG_FIELDS_PLUPLOAD_PARAMS_UPLOAD_PATH_DESC"
+					class="input-xxlarge input-large-text"
+					default="/tmp"
+					required="true"
+				/>
+				<field
+					name="multiple_uploads"
+					type="radio"
+					label="PLG_FIELDS_PLUPLOAD_PARAMS_MULTIPLE_UPLOADS_LABEL"
+					description="PLG_FIELDS_PLUPLOAD_PARAMS_MULTIPLE_UPLOADS_DESC"
+					class="btn-group btn-group-yesno"
+					default="0"
+				>
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field
+					name="prevent_duplicates"
+					type="checkbox"
+					label="PLG_FIELDS_PLUPLOAD_PARAMS_PREVENT_DUPLICATES_LABEL"
+					description="PLG_FIELDS_PLUPLOAD_PARAMS_PREVENT_DUPLICATES_DESC"
+					value="true"
+					checked="1"
+					showon="multiple_uploads:1"
+				/>
+				<field
+					name="upload_field"
+					type="text"
+					label="PLG_FIELDS_PLUPLOAD_PARAMS_UPLOAD_FIELD_LABEL"
+					description="PLG_FIELDS_PLUPLOAD_PARAMS_UPLOAD_FIELD_DESC"
+					class="input-xxlarge input-large-text"
+					default=""
+					showon="multiple_uploads:0"
+				/>
+				<field
+					name="mime_types"
+					type="subform"
+					label="PLG_FIELDS_PLUPLOAD_PARAMS_MIME_TYPES_LABEL"
+					description="PLG_FIELDS_PLUPLOAD_PARAMS_MIME_TYPES_DESC"
+					multiple="true"
+					translate_default="true"
+					layout="joomla.form.field.subform.repeatable-table"
+					default='{"mime_types0":{"title":"Image files","extensions":"jpg,gif,png"},"mime_types1":{"title":"Compressed files","extensions":"zip,7z,rar,gz"},"mime_types2":{"title":"Document files","extensions":"pdf,txt,doc,ods"}}'
+				>
+					<form>
+						<field
+							name="title"
+							type="text"
+							label="PLG_FIELDS_PLUPLOAD_MULTIPLE_KEY"
+							/>
+						<field
+							name="extensions"
+							type="text"
+							label="PLG_FIELDS_PLUPLOAD_MULTIPLE_VALUE"
+							/>
+					</form>
+				</field>
+				<field
+					name="max_file_size"
+					type="number"
+					label="PLG_FIELDS_PLUPLOAD_PARAMS_MAX_FILE_SIZE_LABEL"
+					description="PLG_FIELDS_PLUPLOAD_PARAMS_MAX_FILE_SIZE_DESC"
+					class="input-small"
+					default="0"
+				/>
+				<field
+					name="spacer1"
+					type="spacer"
+					label="PLG_FIELDS_PLUPLOAD_PARAMS_WIDTH_LABEL"
+					description="PLG_FIELDS_PLUPLOAD_PARAMS_WIDTH_DESC"
+					hr="true"
+				/>
+				<field
+					name="width"
+					type="number"
+					label="PLG_FIELDS_PLUPLOAD_PARAMS_WIDTH_LABEL"
+					description="PLG_FIELDS_PLUPLOAD_PARAMS_WIDTH_DESC"
+					default="640"
+					class="input-small"
+				/>
+				<field
+					name="height"
+					type="number"
+					label="PLG_FIELDS_PLUPLOAD_PARAMS_HEIGHT_LABEL"
+					description="PLG_FIELDS_PLUPLOAD_PARAMS_HEIGHT_DESC"
+					default="200"
+					class="input-small"
+				/>
+				<field
+					name="groups"
+					type="usergroup"
+					label="PLG_FIELDS_PLUPLOAD_PARAMS_GROUPS_LABEL"
+					description="PLG_FIELDS_PLUPLOAD_PARAMS_GROUPS_DESC"
+					multiple="multiple"
+				/>
+			</fieldset>
+		</fields>
+	</config>
+</extension>

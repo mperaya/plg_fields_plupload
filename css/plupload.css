@@ -1,0 +1,53 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 31 may. 2021, 16:17:28
+    Author     : admin
+*/
+
+.plupload-meter {
+	padding-top: 20px;
+}
+.plupload-meter .control-label {
+	width: auto !important;
+	margin-left:20px;
+	margin-right: 10px;
+	vertical-align: middle;
+	padding-top: 0px !important;
+}
+
+.plupload-meter .controls {
+	margin-left: auto !important;
+	margin-right: 20px;
+	vertical-align: middle;
+}
+
+.plupload-footer {
+	height: 30px;
+}
+
+/*
+.plupload-filelist {
+	height: 32px;
+}
+.plupload-meter {
+	width: 100%;
+}
+.plupload-meter .progress {
+	margin-left: 20px;
+	width: 100%;
+}
+.plupload-meter .bar {
+	width: 100%;
+}
+
+.plupload-footer {
+	height: 40px !important;
+}
+.plupload-console {
+	margin: 0px 20px 20px 20px;
+	height: 40px;
+}*/
