@@ -1,4 +1,4 @@
-# plg_field_plupload
+# plg_fields_plupload
 PLUpload Joomla integration as custom form field
 
 You can add a custom field in any joomla components that support the 
