@@ -1,10 +1,9 @@
 <?php
 /**
- * @package     Joomla.Site
- * @subpackage  Layout
+ * Plupload Plugin
  *
- * @copyright   Copyright (C) 2005 - 2020 Open Source Matters, Inc. All rights reserved.
- * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @copyright  (C) 2021 Manuel P. Ayala. All rights reserved
+ * @license    http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License Version 2 or Later
  */
 
 defined('_JEXEC') or die;
@@ -83,19 +82,18 @@ $form = Form::getInstance($id . '_form',
 		id="<?php echo $id; ?>"
 		value="<?php echo htmlspecialchars($value, ENT_COMPAT, 'UTF-8'); ?>"
 		readonly="readonly"
-		<?php // echo $attr; ?>
-		data-basepath="<?php echo ($params->upload_field) ? $params->upload_field : $params->upload_path; ?>"
+		class="novalidate"
 		/>
 <?php if($access) : ?>
 	<button id="<?php echo $id; ?>_pickfiles" 
-		class="btn modal" 
+		class="btn modal novalidate" 
 		data-toggle="modal" 
 		data-target="#<?php echo $id; ?>_modal-update" 
 		title="<?php echo Text::_('JLIB_FORM_BUTTON_SELECT'); ?>"
 		>
 			<?php echo Text::_('JLIB_FORM_BUTTON_SELECT'); ?>
 	</button>
-	<div class="btn-group" style="width: 0; margin: 0">
+	<div class="btn-group novalidate" style="width: 0; margin: 0">
 		<div id="<?php echo $id; ?>_modal-update" 
 			tabindex="-1" 
 			class="modal hide fade plupload" 

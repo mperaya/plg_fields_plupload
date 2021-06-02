@@ -1,10 +1,9 @@
 <?php
 /**
- * @package     Joomla.Site
- * @subpackage  Layout
+ * Plupload Plugin
  *
- * @copyright   Copyright (C) 2005 - 2020 Open Source Matters, Inc. All rights reserved.
- * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @copyright  (C) 2021 Manuel P. Ayala. All rights reserved
+ * @license    http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License Version 2 or Later
  */
 
 defined('_JEXEC') or die;
@@ -44,8 +43,9 @@ $params->upload_field = $upload_field;
 		id="<?php echo $id; ?>"
 		value="<?php echo htmlspecialchars($value, ENT_COMPAT, 'UTF-8'); ?>"
 		readonly="readonly"
-		data-basepath="<?php echo ($params->upload_field) ? $params->upload_field : $params->upload_path; ?>"
+		class="novalidate"
 		/>
+<?php if($access) : ?>
 	<button id="<?php echo $id; ?>_pickfiles"
 		class="btn modal" 
 		data-toggle="modal" 
@@ -142,4 +142,5 @@ $params->upload_field = $upload_field;
 			</div>
 		</div>
 	</div>
+<?php endif; ?>
 </div>

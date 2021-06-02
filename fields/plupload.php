@@ -1,21 +1,23 @@
 <?php
 /**
- * Joomla! Content Management System
+ * Plupload Plugin
  *
- * @copyright  Copyright (C) 2005 - 2020 Open Source Matters, Inc. All rights reserved.
- * @license    GNU General Public License version 2 or later; see LICENSE.txt
+ * @copyright  (C) 2021 Manuel P. Ayala. All rights reserved
+ * @license    http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License Version 2 or Later
  */
 
 defined('_JEXEC') or die;
 
-//use Joomla\CMS\Component\ComponentHelper;
-use Joomla\CMS\Form\FormField;
+//use Joomla\CMS\Form\FormField;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Factory;
+
+JFormHelper::loadFieldClass('Text');
+
 /**
  * Provides a modal media selector for upload big files.
  */
-class JFormFieldPlupload extends FormField
+class JFormFieldPlupload extends JFormFieldText
 {
 	/**
 	 * The form field type.
@@ -24,22 +26,10 @@ class JFormFieldPlupload extends FormField
 	protected $type = 'Plupload';
 
 	/**
-	 * The authorField.
-	 * @var    string
-	 */
-	protected $authorField;
-
-	/**
 	 * The asset.
 	 * @var    string
 	 */
 	protected $asset;
-
-	/**
-	 * The link.
-	 * @var    string
-	 */
-	protected $link;
 
 	/**
 	 * Modal width.
@@ -101,20 +91,6 @@ class JFormFieldPlupload extends FormField
 	 */
 	protected $layout = 'plupload-single';
 
-//	public function __construct($form = null) {
-//		parent::__construct($form);
-//
-//		//print_r($this->params->get('multiple_uploads'));
-//		
-//		$plugin = Joomla\CMS\Plugin\PluginHelper::getPlugin('fields', 'plupload');
-//		// Check if plugin is enabled
-//		if ($plugin)
-//		{
-//		    // Get plugin params
-//		    $pluginParams = new JRegistry($plugin->params);
-//		}
-//
-//	}
 	/**
 	 * Method to get certain otherwise inaccessible properties from the form field object.
 	 * @param   string  $name  The property name for which to get the value.

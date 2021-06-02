@@ -14,6 +14,7 @@
 // Added for prevent use outside joomla calls
 // Uncoment for joomla use.
 defined('_JEXEC') or die;
+
 use Joomla\CMS\Factory;
 
 define('PLUPLOAD_MOVE_ERR', 103);
@@ -125,8 +126,6 @@ class PluploadHandler
 				sleep($conf['delay']);
 			}
 
-//error_log(print_r($conf['file_name'],true)."\n",3,'/tmp/error.log');
-//error_log(print_r($_FILES,true)."\n",3,'/tmp/error.log');
 			if (!$conf['file_name']) {
 				if (!empty($_FILES)) {
 					$conf['file_name'] = $_FILES[$conf['file_data_name']]['name'];
@@ -153,7 +152,6 @@ class PluploadHandler
 				}
 			}
 			if (file_exists($this->getTargetPathFor($file_name))) {
-error_log(print_r($file_name,true)."\n",3,'/tmp/error.log');
 				throw new Exception('', PLUPLOAD_FILE_EXIST_ERR);
 			} else {
 
