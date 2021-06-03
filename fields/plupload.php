@@ -213,6 +213,8 @@ class JFormFieldPlupload extends JFormFieldText
 
 	protected function getRenderer($layoutId = 'default')
 	{
+		$this->loadLanguage();
+		
 		$renderer = parent::getRenderer($layoutId);
 
 		if ($layoutId == $this->layout) {
@@ -304,4 +306,22 @@ class JFormFieldPlupload extends JFormFieldText
 		
 		return implode(',', $extensions);
 	}
+
+        /**
+         * Loads the plugin language file
+         */
+        public function loadLanguage()
+        {
+		$extension = 'plg_fields_plupload';
+		$lang      = \JFactory::getLanguage();
+		
+		// If language already loaded, don't load it again.
+		if ($lang->getPaths($extension)) {
+			return true;
+		}
+
+		return $lang->load($extension, JPATH_ADMINISTRATOR, null, false, true)
+			|| $lang->load($extension, JPATH_PLUGINS . '/fields/plupload', null, false, true);
+        }
+
 }
