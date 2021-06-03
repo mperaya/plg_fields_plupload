@@ -65,7 +65,7 @@ class PluploadHandler
 		$this->conf = array_merge(
 			array(
 				'file_data_name' => 'file',
-				'tmp_dir' => ini_get("upload_tmp_dir") . DS . "plupload",
+				'tmp_dir' => ini_get("upload_tmp_dir") . "/plupload",
 				'target_dir' => false,
 				'cleanup' => true,
 				'max_file_age' => 5 * 3600, // in hours
@@ -125,7 +125,7 @@ class PluploadHandler
 			if ($conf['delay']) {
 				sleep($conf['delay']);
 			}
-
+			
 			if (!$conf['file_name']) {
 				if (!empty($_FILES)) {
 					$conf['file_name'] = $_FILES[$conf['file_data_name']]['name'];
@@ -246,7 +246,7 @@ class PluploadHandler
 				return $this->rename($chunk_path, $file_path);
 			}
 		} else {
-			$chunk_path = $this->writeUploadTo("$file_path.dir.part" . DS . "$chunk.part");
+			$chunk_path = $this->writeUploadTo("$file_path.dir.part" . "/$chunk.part");
 
 			if ($this->conf['combine_chunks_on_complete'] && $this->isLastChunk($file_name)) {
 				return $this->combineChunksFor($file_name);
@@ -398,7 +398,7 @@ class PluploadHandler
 			$chunk_paths = array();
 
 			for ($i = 0; $i < $this->conf['chunks']; $i++) {
-				$chunk_path = $chunk_dir . DS . "$i.part";
+				$chunk_path = $chunk_dir . "/$i.part";
 				if (!file_exists($chunk_path)) {
 					throw new Exception('', PLUPLOAD_MOVE_ERR);
 				}
@@ -478,8 +478,9 @@ class PluploadHandler
 	 */
 	function getTargetPathFor($file_name)
 	{
-		$target_dir = str_replace(array("/", "\/"), DS, rtrim($this->conf['target_dir'], "/\\"));
-		return $target_dir . DS . $file_name;
+		$target_dir = rtrim($this->conf['target_dir'], "/\\");
+		$target_dir = str_replace(array("/", "\/"), "/", $target_dir);
+		return $target_dir . "/" . $file_name;
 	}
 
 
@@ -710,4 +711,3 @@ class PluploadHandler
 		file_put_contents($this->conf['log_path'], $msg, FILE_APPEND);
 	}
 }
-

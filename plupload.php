@@ -1,17 +1,14 @@
 <?php
 /**
- * Plupload Plugin
- *
+ * @package Plupload Plugin for Joomla! 3.9
  * @copyright  (C) 2021 Manuel P. Ayala. All rights reserved
- * @license    http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License Version 2 or Later
+ * @license    GNU Affero General Public License Version 3; http://www.gnu.org/licenses/agpl-3.0.txt 
  */
 
 defined('_JEXEC') or die;
 
-use Joomla\CMS\Language\Text;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
-use Joomla\Registry\Format\Json;
 
 JLoader::import('components.com_fields.libraries.fieldsplugin', JPATH_ADMINISTRATOR);
 JLoader::import('pluploadhandler',__DIR__);
@@ -30,13 +27,13 @@ class PlgFieldsPlupload extends FieldsPlugin
 			$ph = new PluploadHandler(array(
 				'target_dir' => $params->upload_path,
 				'allow_extensions' => static::parseMimeExt($params->mime_types),
-				'log_path' => $params->log_path,
+				'upload_field' => $params->upload_field,
 			));
 
 			$ph->sendNoCacheHeaders();
 			$ph->sendCORSHeaders();
 
-			if ($result = $ph->handleUpload()) {
+			if (($result = $ph->handleUpload())) {
 				die(json_encode(array(
 					'OK' => 1,
 					'info' => $result
@@ -82,7 +79,10 @@ class PlgFieldsPlupload extends FieldsPlugin
 
 	private function getParams()
 	{
-		$params = json_decode(urldecode(base64_decode(Factory::getApplication()->input->get('params'))));
+		$p1 = Factory::getApplication()->input->get('params');
+		$p2 = base64_decode($p1);
+		$p3 = urldecode($p2);
+		$params = json_decode($p3);
 
 		$scope = explode('.',$params->scope);
 
@@ -104,8 +104,8 @@ class PlgFieldsPlupload extends FieldsPlugin
 			} else if(file_exists(JPATH_ADMINISTRATOR . $xml_path)) {
 				$xml_path = JPATH_ADMINISTRATOR . $xml_path;
 			}
-			if ($form = Form::getInstance($scope[1], $xml_path)) {
-				if ($field = $form->getField($scope[2]) ) {
+			if (($form = Form::getInstance($scope[1], $xml_path))) {
+				if ( ($field = $form->getField($scope[2])) ) {
 					$params->mime_types = $json->stringToObject($field->getAttribute('mime_types'));
 					$params->groups = $field->getAttribute('groups');
 				}

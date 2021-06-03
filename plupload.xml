@@ -2,9 +2,9 @@
 <extension type="plugin" version="3.8" group="fields" method="upgrade">
 	<name>plg_fields_plupload</name>
 	<author>Manuel P. Ayala</author>
-	<creationDate>May 2021</creationDate>
+	<creationDate>Jun 2021</creationDate>
 	<copyright>(C) 2021 Manuel P. Ayala. All rights reserved.</copyright>
-	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+	<license>GNU Affero General Public License Version 3; http://www.gnu.org/licenses/agpl-3.0.txt</license>
 	<authorEmail>mperaya@gmail.com</authorEmail>
 	<version>1.0.0</version>
 	<description>PLG_FIELDS_PLUPLOAD_XML_DESCRIPTION</description>
@@ -127,4 +127,7 @@
 			</fieldset>
 		</fields>
 	</config>
+	<updateservers>
+		<server type="plugin" name="Fields - PLUpload Plugin Updates">https://github.com/mperaya/plg_fields_plupload/manifest.xml</server>
+	 </updateservers>
 </extension>

@@ -1,9 +1,8 @@
 <?php
 /**
- * Plupload Plugin
- *
+ * @package Plupload Plugin for Joomla! 3.9
  * @copyright  (C) 2021 Manuel P. Ayala. All rights reserved
- * @license    http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License Version 2 or Later
+ * @license    GNU Affero General Public License Version 3; http://www.gnu.org/licenses/agpl-3.0.txt 
  */
 
 defined('_JEXEC') or die;

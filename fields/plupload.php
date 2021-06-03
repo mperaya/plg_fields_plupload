@@ -1,14 +1,12 @@
 <?php
 /**
- * Plupload Plugin
- *
+ * @package Plupload Plugin for Joomla! 3.9
  * @copyright  (C) 2021 Manuel P. Ayala. All rights reserved
- * @license    http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License Version 2 or Later
+ * @license    GNU Affero General Public License Version 3; http://www.gnu.org/licenses/agpl-3.0.txt 
  */
 
 defined('_JEXEC') or die;
 
-//use Joomla\CMS\Form\FormField;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Factory;
 
@@ -23,7 +21,7 @@ class JFormFieldPlupload extends JFormFieldText
 	 * The form field type.
 	 * @var    string
 	 */
-	protected $type = 'Plupload';
+	protected $type = "Plupload";
 
 	/**
 	 * The asset.
@@ -89,7 +87,7 @@ class JFormFieldPlupload extends JFormFieldText
 	 * Layout to render
 	 * @var    string
 	 */
-	protected $layout = 'plupload-single';
+	protected $layout = "plupload-single";
 
 	/**
 	 * Method to get certain otherwise inaccessible properties from the form field object.
@@ -160,7 +158,6 @@ class JFormFieldPlupload extends JFormFieldText
 		if ($result === true)
 		{
 			$this->scope              = ($this->__get('group') == 'com_fields') ? 'com_fields' . '.' . $this->form->getName() : $this->form->getName() . '.' . $this->getAttribute('name');
-			$scope = explode('.',$this->scope);
 			$this->groups  	          = $this->element['groups'];
 			$this->multiple_uploads   = (string) $this->element['multiple_uploads'];
 			$this->upload_field       = (string) $this->element['upload_field'];

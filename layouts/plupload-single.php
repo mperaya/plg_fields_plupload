@@ -1,9 +1,8 @@
 <?php
 /**
- * Plupload Plugin
- *
+ * @package Plupload Plugin for Joomla! 3.9
  * @copyright  (C) 2021 Manuel P. Ayala. All rights reserved
- * @license    http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License Version 2 or Later
+ * @license    GNU Affero General Public License Version 3; http://www.gnu.org/licenses/agpl-3.0.txt 
  */
 
 defined('_JEXEC') or die;
@@ -29,33 +28,6 @@ HtmlHelper::script('media/plg_fields_plupload/js/moxie.min.js');
 HtmlHelper::script('media/plg_fields_plupload/js/plupload.min.js');
 
 HtmlHelper::script('media/plg_fields_plupload/js/i18n/' . $lang . '.js');
-
-//// Tooltip for INPUT showing whole image path
-//$options = array(
-//	'onShow' => 'jMediaRefreshImgpathTip',
-//);
-//
-//JHtml::_('behavior.tooltip', '.hasTipImgpath', $options);
-//
-//if (!empty($class))
-//{
-//	$class .= ' hasTipImgpath';
-//}
-//else
-//{
-//	$class = 'hasTipImgpath';
-//}
-//
-//$attr = '';
-//$attr .= ' title="' . htmlspecialchars('<span id="TipImgpath"></span>', ENT_COMPAT, 'UTF-8') . '"';
-//
-//// Initialize some field attributes.
-////$attr .= !empty($class) ? ' class="input-small field-media-input ' . $class . '"' : ' class="input-small"';
-//$attr .= !empty($class) ? ' class="field-input-name ' . $class . '"' : ' class="field-input-name"';
-//$attr .= !empty($size) ? ' size="' . $size . '"' : '';
-//
-//// Initialize JavaScript field attributes.
-//$attr .= !empty($onchange) ? ' onchange="' . $onchange . '"' : '';
 
 $params = new stdClass();
 $params->scope = $scope;
@@ -161,7 +133,7 @@ $form = Form::getInstance($id . '_form',
 				max_file_size: '<?php echo $max_file_size; ?>mb',
 				mime_types: [
 					<?php echo $mime_types; ?>
-				],
+				]
 			},
 			init: {
 				PostInit: function() {
