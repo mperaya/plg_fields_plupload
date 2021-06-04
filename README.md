@@ -13,3 +13,14 @@ In either cases the upload will be made with the plupload js library
 and plupload php upload handler for allow uploading of files with sizes
 many times bigger than the php upload limit permit. Even you can upload
 files of many GigaBytes in size.
+
+You can also include this custom field in your component or any other extension.
+
+The only need is to install the plugin, enable it, and add this to your extension
+in the extension ".php" file before any call to render or show any form.
+
+<code>
+if(is_dir(JPATH_PLUGINS . '/fields/plupload')) {
+	Form::addFieldPath(JPATH_PLUGINS . '/fields/plupload/fields');
+}
+</code>
