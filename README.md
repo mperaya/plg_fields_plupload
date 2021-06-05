@@ -1,5 +1,5 @@
 # plg_fields_plupload
-PLUpload Joomla integration as custom form field
+PLUpload Joomla integration as custom form field.
 
 You can add this custom field to any joomla components that support the 
 joomla custom fields system and this will display a button for multiple 
