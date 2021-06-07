@@ -3,17 +3,16 @@
 	<update>
 		<name>PLUpload for Joomla</name>
 		<description>This plugin lets you create new fields of type 'plupload' in any extensions where custom fields are supported.</description>
-		<element>plg_fields_plupload</element>
+		<element>plupload</element>
 		<type>plugin</type>
-		<version>1.0.0</version>
-		<client>site</client>
-		<infourl title="Fields - PLUpload Plugin">https://github.com/mperaya/plg_fields_plupload/releases/tag/v1.0.0</infourl>
+		<folder>fields</folder>
+		<version>1.0.1</version>
+		<client>0</client>
+		<infourl title="Fields - PLUpload Plugin">https://github.com/mperaya/plg_fields_plupload/releases/tag/v1.0.1</infourl>
 		<downloads>
-			<downloadurl type="full" format="zip">https://github.com/mperaya/plg_fields_plupload/releases/download/v1.0.0/plg_fields_plupload-1.0.0.zip</downloadurl>
+			<downloadurl type="full" format="zip">https://github.com/mperaya/plg_fields_plupload/releases/download/v1.0.1/plg_fields_plupload-1.0.1.zip</downloadurl>
 		</downloads>
 		<targetplatform name="joomla" version="3.9\..*" />
-		<client>0</client>
-		<folder>fields</folder>
 		<php_minimum>7.0</php_minimum>
 	</update>
 </updates>
