@@ -16,7 +16,8 @@
 		<folder>params</folder>
 		<folder>tmpl</folder>
 		<filename plugin="plupload">plupload.php</filename>
-		<filename plugin="plupload">pluploadhandler.php</filename>
+		<filename>pluploadhandler.php</filename>
+		<filename>LICENSE</filename>
 	</files>
         <media folder="media" destination="plg_fields_plupload">
                 <folder>css</folder>
