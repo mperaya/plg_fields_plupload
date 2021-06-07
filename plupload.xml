@@ -129,6 +129,6 @@
 		</fields>
 	</config>
 	<updateservers>
-		<server type="extension" name="PLUpload for Joomla Updates">https://github.com/mperaya/plg_fields_plupload/manifest.xml</server>
+		<server type="extension" name="PLUpload for Joomla Updates">https://raw.githubusercontent.com/mperaya/plg_fields_plupload/main/manifest.xml</server>
 	 </updateservers>
 </extension>
