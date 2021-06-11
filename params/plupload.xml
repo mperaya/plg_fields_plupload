@@ -10,6 +10,7 @@
 					class="input-xxlarge input-large-text"
 					default="/tmp"
 					required="true"
+					filter="path"
 				/>
 				<field
 					name="multiple_uploads"

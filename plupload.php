@@ -21,7 +21,6 @@ class PlgFieldsPlupload extends FieldsPlugin
 	public function  onAjaxPlupload()
         {
 		if (Factory::getUser()->get('id') != 0) {
-
 			$params = $this->getParams();
 
 			$ph = new PluploadHandler(array(
@@ -34,28 +33,12 @@ class PlgFieldsPlupload extends FieldsPlugin
 			$ph->sendCORSHeaders();
 
 			if (($result = $ph->handleUpload())) {
-				die(json_encode(array(
-					'OK' => 1,
-					'info' => $result
-				)));
+				$response = new Joomla\CMS\Response\JsonResponse(array('info' => $result), $result);
+				die($response);
 			} else {
-				header('HTTP/1.1 400');
-				die(json_encode(array(
-					'OK' => 0,
-					'error' => array(
-						'code' => $ph->getErrorCode(),
-						'message' => $ph->getErrorMessage()
-					)
-				)));
+				$response = new Joomla\CMS\Response\JsonResponse(array('code' => $ph->getErrorCode(),'message' => $ph->getErrorMessage()), $ph->getErrorMessage(), true);
+				die($response);
 			}
-		} else {
-			die(json_encode(array(
-				'OK' => 0,
-				'error' => array(
-					'code' => $ph->getErrorCode(),
-					'message' => $ph->getErrorMessage()
-				)
-			)));
 		}
 	}
 	

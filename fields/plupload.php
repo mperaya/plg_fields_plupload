@@ -100,7 +100,7 @@ class JFormFieldPlupload extends JFormFieldText
 		{
 			case 'layout':
 			case 'upload_path':
-			case 'upload_field';
+			case 'upload_field':
 			case 'scope':
 			case 'max_file_size':
 			case 'prevent_duplicates':
@@ -108,6 +108,7 @@ class JFormFieldPlupload extends JFormFieldText
 			case 'width':
 			case 'height':
 				return $this->$name;
+				break;
 		}
 
 		return parent::__get($name);
@@ -123,9 +124,9 @@ class JFormFieldPlupload extends JFormFieldText
 	{
 		switch ($name)
 		{
-			case 'layout':
 			case 'upload_path':
-			case 'upload_field';
+			case 'upload_field':
+			case 'layout':
 			case 'scope':
 				$this->$name = (string) $value;
 				break;
@@ -157,45 +158,62 @@ class JFormFieldPlupload extends JFormFieldText
 		$result = parent::setup($element, $value, $group);
 		if ($result === true)
 		{
-			$this->scope              = ($this->__get('group') == 'com_fields') ? 'com_fields' . '.' . $this->form->getName() : $this->form->getName() . '.' . $this->getAttribute('name');
-			$this->groups  	          = $this->element['groups'];
-			$this->multiple_uploads   = (string) $this->element['multiple_uploads'];
-			$this->upload_field       = (string) $this->element['upload_field'];
-			$this->upload_path        = (string) $this->element['upload_path'];
-			if ($this->upload_field != '') {
-				$upload_field = $this->upload_field;
-				if ($this->form->getField($this->upload_field)) {
-					$dynamic_upload_path = $this->form->getValue($this->upload_field);
-				} else {
-					$data = $this->form->getData()->get('com_fields');
-					if (is_object($data) && key_exists($upload_field, (array) $data)) {
-						$dynamic_upload_path = $data->$upload_field;
-					} else {
-						$dynamic_upload_path = '';
-					}
-				}
-				if ($dynamic_upload_path != '') {
-					if (is_dir($dynamic_upload_path)) {
-						$this->upload_path = $dynamic_upload_path;
-					}
-				}
-			}
-			$this->max_file_size      = (int) $this->element['max_file_size'];
-			$this->prevent_duplicates = (int) $this->element['prevent_duplicates'];
+			$this->__set('scope',($this->__get('group') == 'com_fields') ? 'com_fields' . '.' . $this->form->getName() : $this->form->getName() . '.' . $this->getAttribute('name'));
+			$this->__set('groups',$this->element['groups']);
+			$this->__set('multiple_uploads',(string) $this->element['multiple_uploads']);
+			$this->__set('upload_field',(string) $this->element['upload_field']);
+			$this->__set('upload_path',(string) '/' . static::filterPath($this->element['upload_path']));
+			$this->checkUploadPath();
+			$this->__set('max_file_size',(int) $this->element['max_file_size']);
+			$this->__set('prevent_duplicates',(int) $this->element['prevent_duplicates']);
 
 			$json = \Joomla\Registry\Factory::getFormat('json');		
-			$this->mime_types         = $json->stringToObject($this->element['mime_types']);
-			$this->width  	          = isset($this->element['width']) ? (int) $this->element['width'] : 640;
-			$this->height 	          = isset($this->element['height']) ? (int) $this->element['height'] : 384;
+			$this->__set('mime_types',$json->stringToObject($this->element['mime_types']));
+			$this->__set('width',isset($this->element['width']) ? (int) $this->element['width'] : 640);
+			$this->__set('height',isset($this->element['height']) ? (int) $this->element['height'] : 384);
 
-			if($this->multiple_uploads) {
-				$this->layout = 'plupload-multiple';
+			if($this->__get('multiple_uploads')) {
+				$this->__set('layout','plupload-multiple');
 			}
 		}
 
 		return $result;
 	}
 
+	/**
+	 * Method to check the target upload path.
+	 */
+	public function checkUploadPath()
+	{
+		if ($this->__get('upload_field') != '') {
+			$upload_field = $this->__get('upload_field');
+			if ($this->form->getField($upload_field)) {
+				$dynamic_upload_path = static::filterPath($this->form->getValue($upload_field));
+			} else {
+				$data = $this->form->getData()->get('com_fields');
+				if (is_object($data) && key_exists($upload_field, (array) $data)) {
+					$dynamic_upload_path = static::filterPath($data->$upload_field);
+				} else {
+					$dynamic_upload_path = '';
+				}
+			}
+			if ($dynamic_upload_path != '') {
+				$a =  '/' . static::filterPath($this->upload_path);
+				if (is_dir($a . '/' . $dynamic_upload_path)) {
+					$this->__set('upload_path',$a . '/' . $dynamic_upload_path);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Method to filter the target upload path.
+	 */
+	static function filterPath($path)
+	{
+		return preg_replace(array('/\/\/*/','/^\//','/\/$/'), array('/','',''), $path);
+	}
+	
 	/**
 	 * Method to get the field input markup for a media selector.
 	 * Use attributes to identify specific created_by and asset_id fields
@@ -247,7 +265,6 @@ class JFormFieldPlupload extends JFormFieldText
 			'lang'               => $this->getLang(),
 			'access'             => $this->hasAccess(),
 		);
-
 		return array_merge($data, $extraData);
 	}
 

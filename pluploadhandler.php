@@ -16,6 +16,7 @@
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
 
 define('PLUPLOAD_MOVE_ERR', 103);
 define('PLUPLOAD_INPUT_ERR', 101);
@@ -50,17 +51,11 @@ class PluploadHandler
 
 	function __construct($conf = array())
 	{
-		// Check if in joomla context. Then get request vars as is or
-		// 'a la' jooomla style.
-		if(defined('_JEXEC')) {
-			$chunk    = Factory::getApplication()->input->get('chunk', 0);
-			$chunks   = Factory::getApplication()->input->get('chunks', 0);
-			$name     = Factory::getApplication()->input->get('name', 0);
-		} else {
-			$chunk  = isset($_REQUEST['chunk']) ? intval($_REQUEST['chunk']) : 0;
-			$chunks = isset($_REQUEST['chunks']) ? intval($_REQUEST['chunks']) : 0;
-			$name   = isset($_REQUEST['name']) ? $_REQUEST['name'] : false;
-		}
+		$app = 	Factory::getApplication();
+
+		$chunk    = $app->input->get('chunk', 0);
+		$chunks   = $app->input->get('chunks', 0);
+		$name     = $app->input->get('name', 0);
 		
 		$this->conf = array_merge(
 			array(
@@ -81,22 +76,21 @@ class PluploadHandler
 				'cb_check_file' => false,
 				'cb_filesize' => array($this, 'filesize'),
 				'error_strings' => array(
-					PLUPLOAD_MOVE_ERR => "Failed to move uploaded file.",
-					PLUPLOAD_INPUT_ERR => "Failed to open input stream.",
-					PLUPLOAD_OUTPUT_ERR => "Failed to open output stream.",
-					PLUPLOAD_TMPDIR_ERR => "Failed to open temp directory.",
-					PLUPLOAD_TYPE_ERR => "File type not allowed.",
-					PLUPLOAD_UNKNOWN_ERR => "Failed due to unknown error.",
-					PLUPLOAD_SECURITY_ERR => "File didn't pass security check.",
-					PLUPLOAD_FILE_EXIST_ERR => "File already exist."
+					PLUPLOAD_MOVE_ERR => Text::_("PLG_FIELDS_PLUPLOAD_MOVE_ERR"),
+					PLUPLOAD_INPUT_ERR => Text::_("PLG_FIELDS_PLUPLOAD_INPUT_ERR"),
+					PLUPLOAD_OUTPUT_ERR => Text::_("PLG_FIELDS_PLUPLOAD_OUTPUT_ERR"),
+					PLUPLOAD_TMPDIR_ERR => Text::_("PLG_FIELDS_PLUPLOAD_TMPDIR_ERR"),
+					PLUPLOAD_TYPE_ERR => Text::_("PLG_FIELDS_PLUPLOAD_TYPE_ERR"),
+					PLUPLOAD_UNKNOWN_ERR => Text::_("PLG_FIELDS_PLUPLOAD_UNKNOWN_ERR"),
+					PLUPLOAD_SECURITY_ERR => Text::_("PLG_FIELDS_PLUPLOAD_SECURITY_ERR"),
+					PLUPLOAD_FILE_EXIST_ERR => Text::_("PLG_FIELDS_PLUPLOAD_FILE_EXIST_ERR")
 					),
-				'debug' => true,
+				'debug' => false,
 				'log_path' => '/tmp/error.log'
 				),
 			$conf
 			);
 	}
-
 
 	function __destruct()
 	{
@@ -151,6 +145,7 @@ class PluploadHandler
 					throw new Exception('', PLUPLOAD_TYPE_ERR);
 				}
 			}
+
 			if (file_exists($this->getTargetPathFor($file_name))) {
 				throw new Exception('', PLUPLOAD_FILE_EXIST_ERR);
 			} else {
@@ -495,6 +490,7 @@ class PluploadHandler
 		header("Cache-Control: no-store, no-cache, must-revalidate");
 		header("Cache-Control: post-check=0, pre-check=0", false);
 		header("Pragma: no-cache");
+//		header('Clear-Site-Data: "cache", "storage"');
 	}
 
 	/**

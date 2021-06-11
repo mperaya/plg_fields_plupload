@@ -24,6 +24,9 @@ HTMLHelper::_('jquery.framework');
 
 HtmlHelper::_('script', 'media/mediafield-mootools.min.js', array('version' => 'auto', 'relative' => true, 'framework' => true));
 
+//HtmlHelper::script('media/plg_fields_plupload/js/moxie.min.js');
+//HtmlHelper::script('media/plg_fields_plupload/js/plupload.min.js');
+
 HtmlHelper::script('media/plg_fields_plupload/js/jquery-ui.min.js');
 HtmlHelper::script('media/plg_fields_plupload/js/plupload.full.min.js');
 HtmlHelper::script('media/plg_fields_plupload/js/jquery.ui.plupload/jquery.ui.plupload.min.js');
@@ -152,12 +155,16 @@ $form = Form::getInstance($id . '_form',
 					$('#<?php echo $id; ?>_cancel').removeClass('hide');
 					up.start();
 				},
-				ChunkUploaded: async function(up, file, result) {
-					response = await JSON.parse(result.response);
-					if(response.success == false) {
+				ChunkUploaded: function(up, file, result) {
+//					alert("CU" + result.response);
+					response = JSON.parse(result.response);
+					if(response.success === false) {
 						alert(response.message);
 						<?php echo $id; ?>_uploader.stop();
-						location.reload();
+						$('#<?php echo $id; ?>_uploader').refresh;
+						$('#<?php echo $id; ?>_uploader').splice();
+						response = null;
+						<?php echo $id; ?>_initialize();
 					}
 				},
 				UploadProgress: function(up, file) {
@@ -166,22 +173,32 @@ $form = Form::getInstance($id . '_form',
 					$('#<?php echo $id; ?>_meter div.control-group div.controls div.progress').attr('data-value', (file.percent * barwidth / 100));
 					$('#<?php echo $id; ?>_meter div.control-group div.controls div.progress div.bar').css('width', (file.percent * barwidth / 100));
 				},
-				FileUploaded: async function(up, file, result) {
-					response = await JSON.parse(result.response);
+				FileUploaded: function(up, file, result) {
+//					alert("FU" + result.response);
+					response = JSON.parse(result.response);
 					if(response.success === true) {
 						var filename = file.name
+						$('#<?php echo $id; ?>_cancel').addClass('hide');
+						$('#<?php echo $id; ?>_close').removeClass('hide');
+						$('#<?php echo $id; ?>_modal-update').modal('hide');
+						$('#<?php echo $id; ?>_uploader').refresh;
+						$('#<?php echo $id; ?>_uploader').splice();
+						<?php echo $id; ?>_initialize();
 						jInsertFieldValue(filename, '<?php echo $id; ?>');
-						location.reload();
 						return false;
 					}
 				},
 				Error: function(up, err) {
+//					alert("E" + err.message);
 					if (err.code != 0) {
 						$('#<?php echo $id; ?>_cancel').addClass('hide');
 						$('#<?php echo $id; ?>_close').removeClass('hide');
 						$('#<?php echo $id; ?>_modal-update').modal('hide');
 
+						//alert("\nError #" + err.responseText);
 						alert("\nError #" + err.code + ": " + err.message);
+						$('#<?php echo $id; ?>_uploader').refresh;
+						<?php echo $id; ?>_initialize();
 					}
 				}
 			}
@@ -195,18 +212,20 @@ $form = Form::getInstance($id . '_form',
 
 			$('#<?php echo $id; ?>_uploader').files = null;
 			$('#<?php echo $id; ?>_filelist').innerHTML = '';
-			$('#<?php echo $id; ?>_uploader').splice();
 			$('#<?php echo $id; ?>_uploader').start;
-			document.body.onfocus = <?php echo $id; ?>_filecancel();
+			document.body.onfocus = <?php echo $id; ?>_filecancel;
 		};
 		
-		async function <?php echo $id; ?>_filecancel() {
-			filefield = await $('#<?php echo $id; ?>_container div.moxie-shim input[id^=html5_]');
+		function <?php echo $id; ?>_filecancel() {
+			filefield = $('#<?php echo $id; ?>_container div.moxie-shim input[id^=html5_]');
 
-			if (filefield.length < 1) {
+			if (filefield.length <= 1) {
 				document.body.onfocus = null;
 				$('#<?php echo $id; ?>_modal-update').modal('hide');
+			} else {
+				document.body.onfocus = null;
 			}
+			document.body.onfocus = null;
 		}
 		
 		$('#<?php echo $id; ?>_cancel').click(
@@ -216,6 +235,8 @@ $form = Form::getInstance($id . '_form',
 		);
 	
 		$('#<?php echo $id; ?>_modal-update').on('show.bs.modal', function(e) {
+			$('#<?php echo $id; ?>_uploader').splice();
+			$('#<?php echo $id; ?>_uploader').refresh;
 			<?php echo $id; ?>_initialize();
 		});
 
