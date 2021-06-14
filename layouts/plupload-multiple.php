@@ -15,13 +15,8 @@ extract($displayData);
 HtmlHelper::stylesheet('media/plg_fields_plupload/css/jquery-ui.min.css');
 HtmlHelper::stylesheet('media/plg_fields_plupload/js/jquery.ui.plupload/css/jquery.ui.plupload.css');
 
-// Load the modal behavior script.
-HtmlHelper::_('behavior.modal');
-
 // Include jQuery
 HTMLHelper::_('jquery.framework');
-
-HtmlHelper::_('script', 'media/mediafield-mootools.min.js', array('version' => 'auto', 'relative' => true, 'framework' => true));
 
 HtmlHelper::script('media/plg_fields_plupload/js/jquery-ui.min.js');
 HtmlHelper::script('media/plg_fields_plupload/js/plupload.full.min.js');
