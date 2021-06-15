@@ -7,6 +7,7 @@
 
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Form\Form;
@@ -48,6 +49,17 @@ $form = Form::getInstance($id . '_form',
 </form>'
 );
 
+//echo "<pre>";
+//print_r($displayData);
+//echo "</pre>";
+$attributes = array(
+	!empty($class) ? 'class="' . $class . '"' : '',
+	$disabled ? 'disabled' : '',
+	$readonly ? 'readonly' : '',
+	$onchange ? ' onchange="' . $onchange . '"' : ' onchange="Joomla.submitbutton(\'' . Factory::getApplication()->input->get('view') . '.apply\');"',
+	$required ? 'required aria-required="true"' : '',
+);
+
 // The text field.
 ?>
 <div class="input-prepend input-append">
@@ -57,6 +69,7 @@ $form = Form::getInstance($id . '_form',
 		value="<?php echo htmlspecialchars($value, ENT_COMPAT, 'UTF-8'); ?>"
 		readonly="readonly"
 		class="novalidate"
+		<?php echo implode(' ', $attributes); ?>
 		/>
 <?php if($access) : ?>
 	<button id="<?php echo $id; ?>_pickfiles" 
