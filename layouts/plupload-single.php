@@ -16,8 +16,13 @@ extract($displayData);
 // Load de plugin stylesheet
 HtmlHelper::stylesheet('media/plg_fields_plupload/css/plupload.css');
 
+// Load the modal behavior script.
+HtmlHelper::_('behavior.modal');
+
 // Include jQuery
 HTMLHelper::_('jquery.framework');
+
+HtmlHelper::_('script', 'media/mediafield-mootools.min.js', array('version' => 'auto', 'relative' => true, 'framework' => true));
 
 HtmlHelper::script('media/plg_fields_plupload/js/jquery-ui.min.js');
 HtmlHelper::script('media/plg_fields_plupload/js/plupload.full.min.js');
@@ -130,7 +135,7 @@ $form = Form::getInstance($id . '_form',
 				max_file_size: '<?php echo $max_file_size; ?>mb',
 				mime_types: [
 					<?php echo $mime_types; ?>
-				]
+				],
 			},
 			init: {
 				PostInit: function() {
@@ -138,18 +143,17 @@ $form = Form::getInstance($id . '_form',
 				},
 				FilesAdded: function(up, files) {
 					document.body.onfocus = null;
-
+					$('#<?php echo $id; ?>_cancel').removeClass('hide');
 					plupload.each(files, function(file) {
 						document.getElementById(
 							'<?php echo $id; ?>_filelist').innerHTML
 								+= '<div id="' + file.id + '">' + file.name + ' (' + plupload.formatSize(file.size) + ') <b></b></div>';
 					});
-					$('#<?php echo $id; ?>_cancel').removeClass('hide');
 					up.start();
 				},
 				ChunkUploaded: async function(up, file, result) {
 					response = await JSON.parse(result.response);
-					if(response.success == false) {
+					if(response.success === false) {
 						alert(response.message);
 						<?php echo $id; ?>_uploader.stop();
 						location.reload();
@@ -164,25 +168,43 @@ $form = Form::getInstance($id . '_form',
 				FileUploaded: async function(up, file, result) {
 					response = await JSON.parse(result.response);
 					if(response.success === true) {
-						var filename = file.name
-						jInsertFieldValue(filename, '<?php echo $id; ?>');
-						location.reload();
+						$('#<?php echo $id; ?>_cancel').addClass('hide');
+						$('#<?php echo $id; ?>_close').removeClass('hide');
+						$('#<?php echo $id; ?>_modal-update').modal('hide');
+						jInsertFieldValue(file.name, '<?php echo $id; ?>');
 						return false;
 					}
 				},
 				Error: function(up, err) {
-					if (err.code != 0) {
+					if (err.code !== 0) {
 						$('#<?php echo $id; ?>_cancel').addClass('hide');
 						$('#<?php echo $id; ?>_close').removeClass('hide');
 						$('#<?php echo $id; ?>_modal-update').modal('hide');
-
 						alert("\nError #" + err.code + ": " + err.message);
+						location.reload();
 					}
 				}
 			}
 		});
 
+		<?php echo $id; ?>_uploader.init();
+
+		async function <?php echo $id; ?>_filecancel() {
+			document.body.onfocus = null;
+			filefield = await $('#<?php echo $id; ?>_container div.moxie-shim input[id^=html5_]');
+			if (filefield.length <= 1) {
+				$('#<?php echo $id; ?>_modal-update').modal('hide');
+			}
+		}
+		
+		$('#<?php echo $id; ?>_container div.moxie-shim input[id^=html5_]').on('change', function(event){
+			files = event.target.files;
+			alert("hay");
+		});
+		
 		function <?php echo $id; ?>_initialize() {
+			document.body.onfocus = <?php echo $id; ?>_filecancel;
+
 			$('#<?php echo $id; ?>_meter div.control-group div.controls div.progress').attr('data-value', 0);
 			$('#<?php echo $id; ?>_meter div.control-group div.controls div.progress div.bar').css('width', 0);
 			$('#<?php echo $id; ?>_cancel').addClass('hide');
@@ -190,32 +212,19 @@ $form = Form::getInstance($id . '_form',
 
 			$('#<?php echo $id; ?>_uploader').files = null;
 			$('#<?php echo $id; ?>_filelist').innerHTML = '';
-			$('#<?php echo $id; ?>_uploader').splice();
 			$('#<?php echo $id; ?>_uploader').start;
-			document.body.onfocus = <?php echo $id; ?>_filecancel();
+			
 		};
-		
-		async function <?php echo $id; ?>_filecancel() {
-			filefield = await $('#<?php echo $id; ?>_container div.moxie-shim input[id^=html5_]');
 
-			if (filefield.length < 1) {
-				document.body.onfocus = null;
-				$('#<?php echo $id; ?>_modal-update').modal('hide');
-			}
-		}
-		
 		$('#<?php echo $id; ?>_cancel').click(
 			function () {
 				<?php echo $id; ?>_uploader.stop();
 			}
 		);
-	
-		$('#<?php echo $id; ?>_modal-update').on('show.bs.modal', function(e) {
-			<?php echo $id; ?>_initialize();
-		});
 
-		<?php echo $id; ?>_uploader.init();
-
+//		$('#<?php echo $id; ?>_modal-update').on('show.bs.modal', function(e) {
+//			<?php echo $id; ?>_initialize();
+//		});
 	});
 		</script>
 	</div>
