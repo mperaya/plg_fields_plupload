@@ -1,5 +1,5 @@
 # plg_fields_plupload
-<h3>PLUpload Joomla integration as custom form field.</h3>
+<h3>PLUpload Joomla 4 integration as custom form field.</h3>
 <p>You can add this custom field to any joomla components that support the 
 joomla custom fields system and this will display a button for multiple 
 file upload with the only size limit of the "Max. file size (MB)" param, or
@@ -61,15 +61,15 @@ include it.</p>
 	<dt>Option label: Max. file size (MB)<br /><code>Option name: max_file_size</code></dt>
 	<dd>
 		In this option you can set if there are no limit to uploaded file sizes if you leave it
-		as cero, or you can limit the máx. file size of uploaded files if you define another value.
+		as cero, or you can limit the max. file size of uploaded files if you define another value.
 	</dd>
-	<dt>Option label: Width (px)<br /><code>Option name: width</code></dt>
+	<dt>Option label: Width (vh)<br /><code>Option name: width</code></dt>
 	<dd>
-		You can change the upload dialog width if you change this option.
+		You can change the upload dialog width in viewport units if you change this option.
 	</dd>
-	<dt>Option label: Height (px)<br /><code>Option name: height</code></dt>
+	<dt>Option label: Height (vh)<br /><code>Option name: height</code></dt>
 	<dd>
-		You can change the upload dialog height if you change this option.
+		You can change the upload dialog height in viewport units if you change this option.
 	</dd>
 	<dt>Option label: Groups<br /><code>Option name: groups</code></dt>
 	<dd>
