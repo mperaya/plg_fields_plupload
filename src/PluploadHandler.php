@@ -1,22 +1,28 @@
 <?php
 /**
- * upload.php
+ * pluploadhandler.php
  *
  * Copyright 2013, Moxiecode Systems AB
  * Released under GPL License.
  * 
- * License: http://www.plupload.com/license
+ * License: http://www.plupload.com/license/agplv3
+ * @license    GNU Affero General Public License Version 3; http://www.gnu.org/licenses/agpl-3.0.txt 
  * Contributing: http://www.plupload.com/contributing
  *
  *  * Minor changes for joomla integration by Manuel P. Ayala
  */
 
+namespace Mayala\Plugin\Fields\Plupload;
+
+
 // Added for prevent use outside joomla calls
-// Uncoment for joomla use.
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
+use Exception;
+
+//error_log("handler:\n",3,'/tmp/handler.log');
 
 define('PLUPLOAD_MOVE_ERR', 103);
 define('PLUPLOAD_INPUT_ERR', 101);
@@ -26,8 +32,6 @@ define('PLUPLOAD_TYPE_ERR', 104);
 define('PLUPLOAD_UNKNOWN_ERR', 111);
 define('PLUPLOAD_SECURITY_ERR', 105);
 define('PLUPLOAD_FILE_EXIST_ERR', 106);
-
-define('DS', DIRECTORY_SEPARATOR);
 
 class PluploadHandler
 {
@@ -48,11 +52,12 @@ class PluploadHandler
 	 */
 	protected $error = null;
 
-
 	function __construct($conf = array())
 	{
+		// Get joomla app for url params check
 		$app = 	Factory::getApplication();
 
+		// Get url params for handler config
 		$chunk    = $app->input->get('chunk', 0);
 		$chunks   = $app->input->get('chunks', 0);
 		$name     = $app->input->get('name', 0);
@@ -75,6 +80,7 @@ class PluploadHandler
 				'cb_sanitize_file_name' => array($this, 'sanitize_file_name'),
 				'cb_check_file' => false,
 				'cb_filesize' => array($this, 'filesize'),
+				// Define error strings from joomla references for joomla i18n support
 				'error_strings' => array(
 					PLUPLOAD_MOVE_ERR => Text::_("PLG_FIELDS_PLUPLOAD_MOVE_ERR"),
 					PLUPLOAD_INPUT_ERR => Text::_("PLG_FIELDS_PLUPLOAD_INPUT_ERR"),
@@ -97,7 +103,6 @@ class PluploadHandler
 	    $this->reset();
 	}
 
-
 	function handleUpload()
 	{
 		$conf = $this->conf;
@@ -119,10 +124,13 @@ class PluploadHandler
 			if ($conf['delay']) {
 				sleep($conf['delay']);
 			}
-			
+
 			if (!$conf['file_name']) {
-				if (!empty($_FILES)) {
-					$conf['file_name'] = $_FILES[$conf['file_data_name']]['name'];
+				$currentfile = Factory::getApplication()->input->files->get('file');
+//				if (!empty($_FILES)) {
+				if (!empty($currentfile)) {
+//					$conf['file_name'] = $_FILES[$conf['file_data_name']]['name'];
+					$conf['file_name'] = $currentfile['name'];
 				} else {
 					throw new Exception('', PLUPLOAD_INPUT_ERR);
 				}
@@ -146,10 +154,11 @@ class PluploadHandler
 				}
 			}
 
+			// Check if target files exists, if not upload it
 			if (file_exists($this->getTargetPathFor($file_name))) {
 				throw new Exception('', PLUPLOAD_FILE_EXIST_ERR);
 			} else {
-
+				// Check if success lock, else throw error
 				if ($this->lockTheFile($file_name)) {
 					$this->log("$file_name received" . ($conf['chunks'] ? ", chunks enabled: {$conf['chunk']} of {$conf['chunks']}" : ''));
 					// Write file or chunk to appropriate temp location
@@ -172,7 +181,6 @@ class PluploadHandler
 		}
 	}
 
-
 	/**
 	 * Retrieve the error code
 	 *
@@ -191,7 +199,6 @@ class PluploadHandler
 		return $this->error;
 	}
 
-
 	/**
 	 * Retrieve the error message
 	 *
@@ -205,7 +212,6 @@ class PluploadHandler
 			return '';
 		}
 	}
-
 
 	/**
 	 * Combine chunks for specified file name.
@@ -223,7 +229,6 @@ class PluploadHandler
 		}
 		return $this->rename($tmp_path, $file_path);
 	}
-
 
 	protected function handleChunk($chunk, $file_name)
 	{
@@ -317,11 +322,15 @@ class PluploadHandler
 				throw new Exception('', PLUPLOAD_TMPDIR_ERR);
 			}
 
-			if (!empty($_FILES)) {
-				if (!isset($_FILES[$file_data_name]) || $_FILES[$file_data_name]["error"] || !is_uploaded_file($_FILES[$file_data_name]["tmp_name"])) {
+			$currentfile = Factory::getApplication()->input->files->get('file');
+//			if (!empty($_FILES)) {
+			if (!empty($currentfile)) {
+//				if (!isset($_FILES[$file_data_name]) || $_FILES[$file_data_name]["error"] || !is_uploaded_file($_FILES[$file_data_name]["tmp_name"])) {
+				if ($currentfile["error"] || !is_uploaded_file($currentfile["tmp_name"])) {
 					throw new Exception('', PLUPLOAD_INPUT_ERR);
 				}
-				return $this->writeToFile($_FILES[$file_data_name]["tmp_name"], $file_path, $mode);
+//				return $this->writeToFile($_FILES[$file_data_name]["tmp_name"], $file_path, $mode);
+				return $this->writeToFile($currentfile["tmp_name"], $file_path, $mode);
 			} else {
 				return $this->writeToFile("php://input", $file_path, $mode);
 			}
@@ -329,7 +338,8 @@ class PluploadHandler
 			$this->error = $ex->getCode();
 			$this->log("ERROR: " . $this->getErrorMessage());
 			return false;
-		}	}
+		}
+	}
 
 	/**
 	 * Write source or set of sources to the specified target. Depending on the mode

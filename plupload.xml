@@ -2,24 +2,24 @@
 <extension type="plugin" version="3.8" group="fields" method="upgrade">
 	<name>plg_fields_plupload</name>
 	<author>Manuel P. Ayala</author>
-	<creationDate>Jun 2021</creationDate>
-	<copyright>(C) 2021 Manuel P. Ayala. All rights reserved.</copyright>
+	<creationDate>Feb 2022</creationDate>
+	<copyright>(C) 2022 Manuel P. Ayala. All rights reserved.</copyright>
 	<license>GNU Affero General Public License Version 3; http://www.gnu.org/licenses/agpl-3.0.txt</license>
 	<authorEmail>mperaya@gmail.com</authorEmail>
-	<version>1.0.3</version>
+	<version>2.0.0</version>
 	<description>PLG_FIELDS_PLUPLOAD_XML_DESCRIPTION</description>
 	<scriptfile>script.php</scriptfile>
+	<namespace path="src">Mayala\Plugin\Fields\Plupload</namespace>
 	<files>
 		<folder>fields</folder>
 		<folder>language</folder>
 		<folder>layouts</folder>
 		<folder>params</folder>
+		<folder>src</folder>
 		<folder>tmpl</folder>
 		<filename plugin="plupload">plupload.php</filename>
-		<filename>pluploadhandler.php</filename>
-		<filename>LICENSE</filename>
 	</files>
-        <media folder="media" destination="plg_fields_plupload">
+        <media destination="plg_fields_plupload">
                 <folder>css</folder>
                 <folder>js</folder>
         </media>
@@ -73,7 +73,7 @@
 					multiple="true"
 					translate_default="true"
 					layout="joomla.form.field.subform.repeatable-table"
-					default='{"mime_types0":{"title":"Image files","extensions":"jpg,gif,png"},"mime_types1":{"title":"Compressed files","extensions":"zip,7z,rar,gz"},"mime_types2":{"title":"Document files","extensions":"pdf,txt,doc,ods"}}'
+					default="PLG_FIELDS_PLUPLOAD_MIME_TYPES_DEFAULT"
 				>
 					<form>
 						<field
@@ -108,7 +108,7 @@
 					type="number"
 					label="PLG_FIELDS_PLUPLOAD_PARAMS_WIDTH_LABEL"
 					description="PLG_FIELDS_PLUPLOAD_PARAMS_WIDTH_DESC"
-					default="640"
+					default=""
 					class="input-small"
 				/>
 				<field
@@ -116,12 +116,12 @@
 					type="number"
 					label="PLG_FIELDS_PLUPLOAD_PARAMS_HEIGHT_LABEL"
 					description="PLG_FIELDS_PLUPLOAD_PARAMS_HEIGHT_DESC"
-					default="200"
+					default=""
 					class="input-small"
 				/>
 				<field
 					name="groups"
-					type="usergroup"
+					type="usergrouplist"
 					label="PLG_FIELDS_PLUPLOAD_PARAMS_GROUPS_LABEL"
 					description="PLG_FIELDS_PLUPLOAD_PARAMS_GROUPS_DESC"
 					multiple="multiple"

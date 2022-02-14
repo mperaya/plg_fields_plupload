@@ -1,8 +1,8 @@
 <?php
 /**
- * @package PLUpload for Joomla
- * @copyright  (C) 2021 Manuel P. Ayala. All rights reserved
- * @license    GNU Affero General Public License Version 3; http://www.gnu.org/licenses/agpl-3.0.txt 
+ * @package   PLUpload for Joomla
+ * @copyright (C) 2022 Manuel P. Ayala. All rights reserved
+ * @license   GNU Affero General Public License Version 3; http://www.gnu.org/licenses/agpl-3.0.txt 
  */
 
 defined('_JEXEC') or die;
@@ -14,124 +14,89 @@ use Joomla\CMS\Form\Form;
 
 extract($displayData);
 
-// Load de plugin stylesheet
-HtmlHelper::stylesheet('media/plg_fields_plupload/css/plupload.css');
-
-// Load the modal behavior script.
-HtmlHelper::_('behavior.modal');
-
-// Include jQuery
-HTMLHelper::_('jquery.framework');
-
-HtmlHelper::_('script', 'media/mediafield-mootools.min.js', array('version' => 'auto', 'relative' => true, 'framework' => true));
-
-HtmlHelper::script('media/plg_fields_plupload/js/jquery-ui.min.js');
-HtmlHelper::script('media/plg_fields_plupload/js/plupload.full.min.js');
-HtmlHelper::script('media/plg_fields_plupload/js/jquery.ui.plupload/jquery.ui.plupload.min.js');
-
-HtmlHelper::script('media/plg_fields_plupload/js/i18n/' . $lang . '.js');
-
 $params = new stdClass();
 $params->scope = $scope;
 $params->upload_path = $upload_path;
 $params->upload_field = $upload_field;
 
 $form = Form::getInstance($id . '_form',
-'<form>
-	<field name="' . $id . '_meter"
-		type="meter"
-		label="PLG_FIELDS_PLUPLOAD_METER_LABEL"
-		description="PLG_FIELDS_PLUPLOAD_METER_DESC"
-		default="0"
-		min="0"
-		max="' . $width . '"
-	/>
-</form>'
+'<form>' .
+'	<field name="' . $id . '_meter"' .
+'		type="meter"' .
+'		label="PLG_FIELDS_PLUPLOAD_METER_LABEL"' .
+'		description="PLG_FIELDS_PLUPLOAD_METER_DESC"' .
+'		default="0"' .
+'		max="100"' .
+'		width="0"' .
+'	/>' .
+'</form>'
 );
 
-//echo "<pre>";
-//print_r($displayData);
-//echo "</pre>";
 $attributes = array(
-	!empty($class) ? 'class="' . $class . '"' : '',
 	$disabled ? 'disabled' : '',
 	$readonly ? 'readonly' : '',
 	$onchange ? ' onchange="' . $onchange . '"' : ' onchange="Joomla.submitbutton(\'' . Factory::getApplication()->input->get('view') . '.apply\');"',
 	$required ? 'required aria-required="true"' : '',
 );
 
+$footer = 
+'<button id="' . $id . '_cancel" ' . "\n" .
+'	type="button" ' . "\n" .
+'	class="btn btn-danger novalidate plupload-cancel hide" ' . "\n" .
+'	data-bs-dismiss="modal" ' . "\n" .
+'	aria-label="' . Text::_('JCANCEL') . '" ' . "\n" .
+'	>' . "\n" .
+'	' . Text::_('JCANCEL') . "\n" .
+'</button>' . "\n" .
+'<button id="' . $id . '_close" ' . "\n" .
+'	type="button" ' . "\n" .
+'	class="btn btn-success novalidate plupload-close hide" ' . "\n" .
+'	data-bs-dismiss="modal" ' . "\n" .
+'	aria-label="' . Text::_('JLIB_HTML_BEHAVIOR_CLOSE') . '"' . "\n" .
+'	>' . "\n" .
+'	' . Text::_('JLIB_HTML_BEHAVIOR_CLOSE') . "\n" .
+'</button>' . "\n";
+
+$modaloptions = array(
+		'title'       => Text::_('PLG_FIELDS_PLUPLOAD_PARAMS_UPLOAD_FILES'),
+		'backdrop'    => 'static',
+		'keyboard'    => false,
+		'closeButton' => false,
+		'footer'      => $footer,
+		);
+
+if (!empty($width)) $modaloptions['modalWidth'] = $width;
+if (!empty($height)) $modaloptions['bodyHeight'] = $height;
+
+$body = 
+'<div id="' . $id . '_meter" class="plupload-meter">' .  "\n" .
+'	' . $form->renderField($id . '_meter') .  "\n" .
+'</div>' .  "\n" .
+'<div id="' . $id . '_container" class="hide plupload-container">' .  "\n" .
+'	' . Text::_('PLG_FIELDS_PLUPLOAD_BROWSER_NOT_SUPPORTED') .  "\n" .
+'</div>' .  "\n";
+
+$modalHTML  = HTMLHelper::_(
+	'bootstrap.renderModal',
+	$id . '_modal-update',
+	$modaloptions,
+	$body
+);
 // The text field.
 ?>
-<div class="input-prepend input-append">
+
+<div class="input-group plupload">
 	<input type="text"
 		name="<?php echo $name; ?>"
 		id="<?php echo $id; ?>"
 		value="<?php echo htmlspecialchars($value, ENT_COMPAT, 'UTF-8'); ?>"
 		readonly="readonly"
-		class="novalidate"
-		<?php echo implode(' ', $attributes); ?>
-		/>
+		class="form-control field-input-name novalidate <?php echo $class; ?>" 
+		<?php echo trim(implode(" ", $attributes)) . "\n"; ?>
+	/>
 <?php if($access) : ?>
-	<button id="<?php echo $id; ?>_pickfiles" 
-		class="btn modal novalidate" 
-		data-toggle="modal" 
-		data-target="#<?php echo $id; ?>_modal-update" 
-		title="<?php echo Text::_('JLIB_FORM_BUTTON_SELECT'); ?>"
-		>
-			<?php echo Text::_('JLIB_FORM_BUTTON_SELECT'); ?>
-	</button>
-	<div class="btn-group novalidate" style="width: 0; margin: 0">
-		<div id="<?php echo $id; ?>_modal-update" 
-			tabindex="-1" 
-			class="modal hide fade plupload" 
-			aria-hidden="true" 
-			style="display: none; width: <?php echo $width; ?>px; height: <?php echo $height; ?>px;"
-			>
-			<div class="modal-header plupload-header">
-				<button 
-					type="button" 
-					class="close novalidate" 
-					data-dismiss="modal" 
-					aria-label="<?php echo Text::_('JLIB_HTML_BEHAVIOR_CLOSE'); ?>"
-					>
-					<span aria-hidden="true">×</span>
-				</button>
-				<h3><?php echo Text::_('PLG_FIELDS_PLUPLOAD_PARAMS_UPLOAD_FILES'); ?></h3>
-			</div>
-			<div class="modal-body plupload-body overflow-hidden">
-				<div class="row-fluid">
-					<div id="<?php echo $id; ?>_meter" class="plupload-meter">
-						<?php echo $form->renderField($id . '_meter'); ?>
-					</div>
-					<div id="<?php echo $id; ?>_container" class="hide plupload-container">
-						<?php echo Text::_('PLG_FIELDS_PLUPLOAD_BROWSER_NOT_SUPPORTED'); ?>
-					</div>
-					<div id="<?php echo $id; ?>_filelist" class="hide plupload-filelist">
-						<?php echo Text::_('JCANCEL'); ?>
-					</div>
-				</div>
-				<br style="clear: both" />
-			</div>
-			<div class="modal-footer plupload-footer">
-				<button id="<?php echo $id; ?>_cancel" 
-					type="button" 
-					class="btn btn-danger novalidate plupload-cancel hide" 
-					data-dismiss="modal" 
-					aria-label="<?php echo Text::_('JCANCEL'); ?>"
-					>
-					<span aria-hidden="true"><?php echo Text::_('JCANCEL'); ?></span>
-				</button>
-				<button id="<?php echo $id; ?>_close" 
-					type="button" 
-					class="btn btn-success novalidate plupload-close hide" 
-					data-dismiss="modal" 
-					aria-label="<?php echo Text::_('JLIB_HTML_BEHAVIOR_CLOSE'); ?>"
-					>
-					<span aria-hidden="true"><?php echo Text::_('JLIB_HTML_BEHAVIOR_CLOSE'); ?></span>
-				</button>
-			</div>
-		</div>
-		<script type="text/javascript">
+<?php echo $modalHTML; ?>
+	<script type="text/javascript">
 	jQuery(document).ready(function($) {
 		var <?php echo $id; ?>_uploader = new plupload.Uploader({
 			// General settings
@@ -157,26 +122,20 @@ $attributes = array(
 				FilesAdded: function(up, files) {
 					document.body.onfocus = null;
 					$('#<?php echo $id; ?>_cancel').removeClass('hide');
-					plupload.each(files, function(file) {
-						document.getElementById(
-							'<?php echo $id; ?>_filelist').innerHTML
-								+= '<div id="' + file.id + '">' + file.name + ' (' + plupload.formatSize(file.size) + ') <b></b></div>';
-					});
 					up.start();
 				},
 				ChunkUploaded: async function(up, file, result) {
 					response = await JSON.parse(result.response);
 					if(response.success === false) {
-						alert(response.message);
 						<?php echo $id; ?>_uploader.stop();
 						location.reload();
 					}
 				},
 				UploadProgress: function(up, file) {
-					var barwidth = <?php echo $width; ?>;
-					document.getElementById(file.id).getElementsByTagName('b')[0].innerHTML = '<span>' + file.percent + '%</span>';
-					$('#<?php echo $id; ?>_meter div.control-group div.controls div.progress').attr('data-value', (file.percent * barwidth / 100));
-					$('#<?php echo $id; ?>_meter div.control-group div.controls div.progress div.bar').css('width', (file.percent * barwidth / 100));
+					var barwidth = 100;
+					document.getElementById('<?php echo $id; ?>_meter-desc').getElementsByTagName('small')[0].innerHTML = file.percent + '%';
+					$('#<?php echo $id; ?>_meter div.control-group div.controls div.progress div.progress-bar').attr('aria-valuenow', (file.percent * barwidth / 100) + '%');
+					$('#<?php echo $id; ?>_meter div.control-group div.controls div.progress div.progress-bar').css('width', (file.percent * barwidth / 100) + '%');
 				},
 				FileUploaded: async function(up, file, result) {
 					response = await JSON.parse(result.response);
@@ -184,7 +143,7 @@ $attributes = array(
 						$('#<?php echo $id; ?>_cancel').addClass('hide');
 						$('#<?php echo $id; ?>_close').removeClass('hide');
 						$('#<?php echo $id; ?>_modal-update').modal('hide');
-						jInsertFieldValue(file.name, '<?php echo $id; ?>');
+						<?php echo $id; ?>_updateMediaField(file.name, '<?php echo $id; ?>');
 						return false;
 					}
 				},
@@ -209,24 +168,25 @@ $attributes = array(
 				$('#<?php echo $id; ?>_modal-update').modal('hide');
 			}
 		}
-		
+
 		$('#<?php echo $id; ?>_container div.moxie-shim input[id^=html5_]').on('change', function(event){
 			files = event.target.files;
 			alert("hay");
 		});
-		
+
 		function <?php echo $id; ?>_initialize() {
 			document.body.onfocus = <?php echo $id; ?>_filecancel;
 
+			document.getElementById('<?php echo $id; ?>_meter-desc').getElementsByTagName('small')[0].innerHTML = '';
 			$('#<?php echo $id; ?>_meter div.control-group div.controls div.progress').attr('data-value', 0);
 			$('#<?php echo $id; ?>_meter div.control-group div.controls div.progress div.bar').css('width', 0);
 			$('#<?php echo $id; ?>_cancel').addClass('hide');
 			$('#<?php echo $id; ?>_close').addClass('hide');
 
 			$('#<?php echo $id; ?>_uploader').files = null;
-			$('#<?php echo $id; ?>_filelist').innerHTML = '';
+//			$('#<?php echo $id; ?>_filelist').innerHTML = '';
 			$('#<?php echo $id; ?>_uploader').start;
-			
+
 		};
 
 		$('#<?php echo $id; ?>_cancel').click(
@@ -234,19 +194,44 @@ $attributes = array(
 				<?php echo $id; ?>_uploader.stop();
 			}
 		);
-
-//		$('#<?php echo $id; ?>_modal-update').on('show.bs.modal', function(e) {
-//			<?php echo $id; ?>_initialize();
-//		});
 	});
-		</script>
-	</div>
-	<a class="btn hasTooltip"
+
+	function <?php echo $id; ?>_updateMediaField(value, id) {
+		var $ = jQuery.noConflict();
+		var old_value = $("#" + id).val();
+		if (old_value != value) {
+			var $elem = $("#" + id);
+			$elem.val(value);
+			if (value == '') {
+				$('#' + id + '_clear').attr('disabled', 'disabled');
+			} else {
+				$('#' + id + '_clear').removeAttr('disabled');
+			}
+			$elem.trigger("change");
+			if (typeof($elem.get(0).onchange) === "function") {
+				$elem.get(0).onchange();
+			}
+		}
+	};
+	</script>
+	<button type="button"
+		id="<?php echo $id; ?>_clear"
+		class="btn btn-primary btn-select hasTooltip"
 		title="<?php echo Text::_('JLIB_FORM_BUTTON_CLEAR'); ?>"
-		href="#"
-		onclick="jInsertFieldValue('', '<?php echo $id; ?>'); return false;"
+		onclick="<?php echo $id; ?>_updateMediaField('','<?php echo $id; ?>'); return false;"
+		<?php echo empty($value) ? ' disabled' : ''; ?>
 		>
-		<span class="icon-remove" aria-hidden="true"></span>
-	</a>
+		<span class="icon-remove icon-white" aria-hidden="true"></span>
+	</button>
+	<button
+		type="button"
+		id="<?php echo $id; ?>_pickfiles"
+		class="btn btn-primary btn-select data-state-<?php echo $this->escape($value ?? ''); ?> novalidate"
+		data-bs-target="#<?php echo $id; ?>_modal-update"
+		data-bs-toggle="modal" 
+		title="<?php echo Text::_('JLIB_FORM_BUTTON_SELECT'); ?>" 
+	>
+		<span class="icon-edit icon-white" aria-hidden="true"></span>
+	</button>
 <?php endif; ?>
 </div>

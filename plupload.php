@@ -1,17 +1,21 @@
 <?php
 /**
  * @package PLUpload for Joomla
- * @copyright  (C) 2021 Manuel P. Ayala. All rights reserved
+ * @copyright  (C) 2022 Manuel P. Ayala. All rights reserved
  * @license    GNU Affero General Public License Version 3; http://www.gnu.org/licenses/agpl-3.0.txt 
  */
 
 defined('_JEXEC') or die;
 
+use Joomla\Component\Fields\Administrator\Plugin\FieldsPlugin;
+
+use Mayala\Plugin\Fields\Plupload\PluploadHandler;
+use Mayala\Plugin\Fields\Plupload\Field\PluploadField;
+
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
-
-JLoader::import('components.com_fields.libraries.fieldsplugin', JPATH_ADMINISTRATOR);
-JLoader::import('pluploadhandler',__DIR__);
+use Joomla\CMS\Response\JsonResponse;
+use Joomla\Component\Fields\Administrator\Helper\FieldsHelper;
 
 /**
  * Plupload Plugin
@@ -33,10 +37,10 @@ class PlgFieldsPlupload extends FieldsPlugin
 			$ph->sendCORSHeaders();
 
 			if (($result = $ph->handleUpload())) {
-				$response = new Joomla\CMS\Response\JsonResponse(array('info' => $result), $result);
+				$response = new JsonResponse(array('info' => $result), $result);
 				die($response);
 			} else {
-				$response = new Joomla\CMS\Response\JsonResponse(array('code' => $ph->getErrorCode(),'message' => $ph->getErrorMessage()), $ph->getErrorMessage(), true);
+				$response = new JsonResponse(array('code' => $ph->getErrorCode(),'message' => $ph->getErrorMessage()), $ph->getErrorMessage(), true);
 				die($response);
 			}
 		}
@@ -124,5 +128,4 @@ class PlgFieldsPlupload extends FieldsPlugin
 	{
 		return Factory::getApplication()->getName() == 'administrator';
 	}
-	
 }
