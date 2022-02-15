@@ -85,7 +85,7 @@ class PlgFieldsPlupload extends FieldsPlugin
 				}
 			}
 		} else {
-			$xml_path = '/components/' . $scope[0] . '/models/forms/' . $scope[1] . '.xml';
+			$xml_path = '/components/' . $scope[0] . '/forms/' . $scope[1] . '.xml';
 			if(file_exists(JPATH_ROOT . $xml_path)) {
 				$xml_path = JPATH_ROOT . $xml_path;
 			} else if(file_exists(JPATH_ADMINISTRATOR . $xml_path)) {
@@ -102,7 +102,6 @@ class PlgFieldsPlupload extends FieldsPlugin
 			$params->mime_types = $this->params['mime_types'];
 			$params->groups = $this->params['groups'];
 		}
-
 		return $params;
 	}
 
