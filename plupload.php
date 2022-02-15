@@ -16,6 +16,9 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\Response\JsonResponse;
 use Joomla\Component\Fields\Administrator\Helper\FieldsHelper;
+use Joomla\CMS\Session\Session;
+
+//error_log("params: ".print_r($params,true)."\n", 3,'/tmp/plupload.log');
 
 /**
  * Plupload Plugin
@@ -24,24 +27,64 @@ class PlgFieldsPlupload extends FieldsPlugin
 {
 	public function  onAjaxPlupload()
         {
-		if (Factory::getUser()->get('id') != 0) {
+		if (Factory::getUser()->get('id') != 0 && $this->hasAccess()) {
 			$params = $this->getParams();
-
-			$ph = new PluploadHandler(array(
-				'target_dir' => $params->upload_path,
-				'allow_extensions' => static::parseMimeExt($params->mime_types),
-				'upload_field' => $params->upload_field,
-			));
-
-			$ph->sendNoCacheHeaders();
-			$ph->sendCORSHeaders();
-
-			if (($result = $ph->handleUpload())) {
-				$response = new JsonResponse(array('info' => $result), $result);
+			$token = Session::getFormToken();
+			
+			if ($params->token != $token) {
+				$response = new JsonResponse(array('code' => 105,'message' => Text::_("PLG_FIELDS_PLUPLOAD_SECURITY_ERR")), Text::_("PLG_FIELDS_PLUPLOAD_SECURITY_ERR"), true);
 				die($response);
-			} else {
-				$response = new JsonResponse(array('code' => $ph->getErrorCode(),'message' => $ph->getErrorMessage()), $ph->getErrorMessage(), true);
-				die($response);
+			}
+
+			switch($params->action) {
+				case 'upload':
+					$ph = new PluploadHandler(array(
+						'action' => 'upload',
+						'target_dir' => $params->upload_path,
+						'allow_extensions' => static::parseMimeExt($params->mime_types),
+					));
+
+					$ph->sendNoCacheHeaders();
+					$ph->sendCORSHeaders();
+
+					if (($result = $ph->handleUpload())) {
+						$response = new JsonResponse(array('info' => $result), $result);
+						die($response);
+					} else {
+						$response = new JsonResponse(array('code' => $ph->getErrorCode(),'message' => $ph->getErrorMessage()), $ph->getErrorMessage(), true);
+						die($response);
+					}
+					break;
+				case 'delete':
+					$ph = new PluploadHandler(array(
+						'action' => 'delete',
+						'target_dir' => $params->upload_path,
+						'file_name' => $params->file_name,
+					));
+
+					if (($result = $ph->purge())) {
+						$response = new JsonResponse(array('info' => $result), $result);
+						die($response);
+					} else {
+						$response = new JsonResponse(array('code' => $ph->getErrorCode(),'message' => $ph->getErrorMessage()), $ph->getErrorMessage(), true);
+						die($response);
+					}
+					break;
+				case 'download':
+					$ph = new PluploadHandler(array(
+						'action' => 'delete',
+						'target_dir' => $params->upload_path,
+						'file_name' => $params->file_name,
+					));
+
+					if (($result = $ph->download())) {
+						$response = new JsonResponse(array('info' => $result), $result);
+						die($response);
+					} else {
+						$response = new JsonResponse(array('code' => $ph->getErrorCode(),'message' => $ph->getErrorMessage()), $ph->getErrorMessage(), true);
+						die($response);
+					}
+					break;
 			}
 		}
 	}
@@ -81,6 +124,7 @@ class PlgFieldsPlupload extends FieldsPlugin
 				if ($field->type == 'plupload') {
 					$params->mime_types = $field->fieldparams->get('mime_types');
 					$params->groups = $field->fieldparams->get('groups');
+					$params->access = $this->hasAccess();
 					break;
 				}
 			}
@@ -95,12 +139,14 @@ class PlgFieldsPlupload extends FieldsPlugin
 				if ( ($field = $form->getField($scope[2])) ) {
 					$params->mime_types = $json->stringToObject($field->getAttribute('mime_types'));
 					$params->groups = $field->getAttribute('groups');
+					$params->access = $this->hasAccess();
 				}
 			}
 		}
 		if (count( (array) $params) == 0) {
 			$params->mime_types = $this->params['mime_types'];
 			$params->groups = $this->params['groups'];
+			$params->access = $this->hasAccess();
 		}
 		return $params;
 	}

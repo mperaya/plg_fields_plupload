@@ -21,6 +21,7 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Exception;
+use Joomla\CMS\Filesystem\File;
 
 //error_log("handler:\n",3,'/tmp/handler.log');
 
@@ -141,7 +142,6 @@ class PluploadHandler
 			} else {
 				$file_name = $conf['file_name'];
 			}
-
 
 			// Check if file type is allowed
 			if ($conf['allow_extensions']) {
@@ -532,6 +532,43 @@ class PluploadHandler
 		}
 	}
 
+	/**
+	 * Purge current file
+	 */
+	public function purge()
+	{
+		$file = $this->conf['file_name'] ? $this->conf['target_dir'] . '/' . $this->sanitizeFileName2($this->conf['file_name']) : '';
+//error_log("file: ".print_r($file,true)."\n", 3,'/tmp/plupload.log');
+
+		try {
+			File::delete($file);
+		} catch (Exception $ex) {
+			$this->error = $ex->getCode();
+			$this->log("ERROR: " . $this->getErrorMessage());
+			return false;
+		}
+	}
+
+        public function download()
+        {
+		$file = $this->conf['file_name'] ? $this->conf['target_dir'] . '/' . $this->sanitizeFileName2($this->conf['file_name']) : '';
+
+		$len = filesize( $file );
+
+		// Begin writing headers
+		header( 'Pragma: public' );
+		header( 'Cache-Control: no-store, no-cache, must-revalidate' );
+		header( 'Cache-Control: pre-check=0, post-check=0, max-age=0' );
+		header( 'Expires: 0' );
+		// Use the desired Content-Type
+		header( 'Content-Type: application/octet-stream');
+		// Force the download
+		header( 'Content-Disposition: attachment; filename="' . $this->conf['file_name'] . '"' );
+		header( 'Content-Transfer-Encoding: binary');
+		header( 'Content-Length: ' . $len );
+		@readfile( $file );
+		exit;
+        }
 
 	/**
 	 * Cleans up outdated *.part files and directories inside target_dir.
@@ -579,6 +616,14 @@ class PluploadHandler
 		return $filename;
 	}
 
+	protected function sanitizeFileName2($filename)
+	{
+		$special_chars = array(" ","?", "[", "]", "/", "\\", "=", "<", ">", ":", ";", ",", "'", "\"", "&", "$", "#", "*", "(", ")", "|", "~", "`", "!", "{", "}");
+		$filename = str_replace($special_chars, '', $filename);
+		$filename = preg_replace('/[\s-]+/', '-', $filename);
+		$filename = trim($filename, '.-_');
+		return $filename;
+	}
 
 	/**
 	 * Concise way to recursively remove a directory
