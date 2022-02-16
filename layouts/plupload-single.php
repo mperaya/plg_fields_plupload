@@ -11,13 +11,37 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Form\Form;
+use Joomla\CMS\Session\Session;
 
 extract($displayData);
 
+$token = Session::getFormToken();
+
 $params = new stdClass();
+$params->action = 'upload';
 $params->scope = $scope;
 $params->upload_path = $upload_path;
-$params->upload_field = $upload_field;
+$params->token = $token;
+
+$deleteparams = new stdClass();
+
+if ($value) {
+	$deleteparams->action = 'delete';
+	$deleteparams->scope = $scope;
+	$deleteparams->upload_path = $upload_path;
+	$deleteparams->file_name = $value;
+	$deleteparams->token = $token;
+}
+
+$downloadparams = new stdClass();
+
+if ($value) {
+	$downloadparams->action = 'download';
+	$downloadparams->scope = $scope;
+	$downloadparams->upload_path = $upload_path;
+	$downloadparams->file_name = $value;
+	$downloadparams->token = $token;
+}
 
 $form = Form::getInstance($id . '_form',
 '<form>' .
@@ -35,6 +59,7 @@ $form = Form::getInstance($id . '_form',
 $attributes = array(
 	$disabled ? 'disabled' : '',
 	$readonly ? 'readonly' : '',
+//	'onchange="' . $id . '_changeMediaField()"',
 	$onchange ? ' onchange="' . $onchange . '"' : ' onchange="Joomla.submitbutton(\'' . Factory::getApplication()->input->get('view') . '.apply\');"',
 	$required ? 'required aria-required="true"' : '',
 );
@@ -143,6 +168,8 @@ $modalHTML  = HTMLHelper::_(
 						$('#<?php echo $id; ?>_cancel').addClass('hide');
 						$('#<?php echo $id; ?>_close').removeClass('hide');
 						$('#<?php echo $id; ?>_modal-update').modal('hide');
+//						$('#<?php echo $id; ?>_pickfiles').attr('disabled', 'disabled');
+
 						<?php echo $id; ?>_updateMediaField(file.name, '<?php echo $id; ?>');
 						return false;
 					}
@@ -204,14 +231,36 @@ $modalHTML  = HTMLHelper::_(
 			$elem.val(value);
 			if (value == '') {
 				$('#' + id + '_clear').attr('disabled', 'disabled');
+				$('#' + id + '_download').attr('disabled', 'disabled');
+				$('#' + id + '_pickfiles').removeAttr('disabled');
+				if (confirm("¿También desea eliminar el archivo del servidor?\n\nNombre: " + old_value)) {
+					if (old_value != '') {
+						//create XMLHttpRequest object
+						const xhr = new XMLHttpRequest()
+						//open a get request with the remote server URL
+						xhr.open('POST', 'index.php?option=com_ajax&plugin=plupload&group=fields&format=json&params=<?php echo base64_encode(urlencode(json_encode($deleteparams))); ?>')
+						//send the Http request
+						xhr.send();
+					}
+				}
 			} else {
 				$('#' + id + '_clear').removeAttr('disabled');
+				$('#' + id + '_download').removeAttr('disabled');
 			}
 			$elem.trigger("change");
 			if (typeof($elem.get(0).onchange) === "function") {
 				$elem.get(0).onchange();
 			}
 		}
+	};
+	function <?php echo $id; ?>_downloadMediaField() {
+		window.open('index.php?option=com_ajax&plugin=plupload&group=fields&format=json&params=<?php echo base64_encode(urlencode(json_encode($downloadparams))); ?>', '_blank');
+		//create XMLHttpRequest object
+//		const xhr = new XMLHttpRequest()
+		//open a get request with the remote server URL
+//		xhr.open('POST', 'index.php?option=com_ajax&plugin=plupload&group=fields&format=json&params=<?php echo base64_encode(urlencode(json_encode($downloadparams))); ?>')
+		//send the Http request
+//		xhr.send();
 	};
 	</script>
 	<button type="button"
@@ -223,7 +272,27 @@ $modalHTML  = HTMLHelper::_(
 		>
 		<span class="icon-remove icon-white" aria-hidden="true"></span>
 	</button>
+	<button type="button"
+		id="<?php echo $id; ?>_download"
+		class="btn btn-primary btn-select hasTooltip"
+		title="<?php echo Text::_('PLG_FIELDS_PLUPLOAD_DOWNLOAD'); ?>"
+		onclick="<?php echo $id; ?>_downloadMediaField(); return false;"
+		<?php echo empty($value) ? ' disabled' : ''; ?>
+		>
+		<span class="icon-download icon-white" aria-hidden="true"></span>
+	</button>
 	<button
+		type="button"
+		id="<?php echo $id; ?>_pickfiles"
+		class="btn btn-primary btn-select data-state-<?php echo $this->escape($value ?? ''); ?> novalidate"
+		data-bs-target="#<?php echo $id; ?>_modal-update"
+		data-bs-toggle="modal" 
+		title="<?php echo Text::_('PLG_FIELDS_PLUPLOAD_UPLOAD'); ?>"
+		<?php echo empty($value) ? '' : ' disabled'; ?>
+	>
+		<span class="icon-upload icon-white" aria-hidden="true"></span>
+	</button>
+<!--	<button
 		type="button"
 		id="<?php echo $id; ?>_pickfiles"
 		class="btn btn-primary btn-select data-state-<?php echo $this->escape($value ?? ''); ?> novalidate"
@@ -232,6 +301,6 @@ $modalHTML  = HTMLHelper::_(
 		title="<?php echo Text::_('JLIB_FORM_BUTTON_SELECT'); ?>" 
 	>
 		<span class="icon-edit icon-white" aria-hidden="true"></span>
-	</button>
+	</button>-->
 <?php endif; ?>
 </div>
