@@ -28,13 +28,13 @@ include it.</p>
 <dl>
 	<dt>Option label: Upload path<br /><code>Option name: upload_path</code></dt>
 	<dd>
-		This is a required value. In it yo can set the default upload base path
+		This is a required value. In it you can set the default upload base path
 		for any file you want to upload. It must be a real path to any folder of your site
 		and must to be writeable for the www server user of your system.
 	</dd>
 	<dt>Option label: Multiple uploads<br /><code>Option name: multiple_uploads</code></dt>
 	<dd>
-		If yo leave this as no or false, you will have a field with a button for select and
+		If you leave this as no or false, you will have a field with a button to select and
 		upload a unique file. If you set this as Yes or true, you will have an upload button
 		to show a multiple file upload dialog of PLUpload
 	</dd>
@@ -60,8 +60,8 @@ include it.</p>
 	</dd>
 	<dt>Option label: Max. file size (MB)<br /><code>Option name: max_file_size</code></dt>
 	<dd>
-		In this option you can set if there are no limit to uploaded file sizes if you leave it
-		as cero, or you can limit the max. file size of uploaded files if you define another value.
+		In this option you can set that there is no limit to uploaded file sizes if you leave it
+		as zero, or you can limit the max. file size of uploaded files if you define another value.
 	</dd>
 	<dt>Option label: Width (vh)<br /><code>Option name: width</code></dt>
 	<dd>

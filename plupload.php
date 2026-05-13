@@ -14,6 +14,7 @@ use Mayala\Plugin\Fields\Plupload\Field\PluploadField;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
+use Joomla\CMS\Language\Text;
 use Joomla\CMS\Response\JsonResponse;
 use Joomla\Component\Fields\Administrator\Helper\FieldsHelper;
 use Joomla\CMS\Session\Session;
@@ -72,7 +73,8 @@ class PlgFieldsPlupload extends FieldsPlugin
 					break;
 				case 'download':
 					$ph = new PluploadHandler(array(
-						'action' => 'delete',
+						// Keep the action aligned with the executed operation.
+						'action' => 'download',
 						'target_dir' => $params->upload_path,
 						'file_name' => $params->file_name,
 					));
