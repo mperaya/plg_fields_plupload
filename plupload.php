@@ -41,7 +41,7 @@ class PlgFieldsPlupload extends FieldsPlugin
 				case 'upload':
 					$ph = new PluploadHandler(array(
 						'action' => 'upload',
-						'target_dir' => $params->upload_path,
+						'target_dir' => $this->resolveTargetDir($params),
 						'allow_extensions' => static::parseMimeExt($params->mime_types),
 					));
 
@@ -59,7 +59,7 @@ class PlgFieldsPlupload extends FieldsPlugin
 				case 'delete':
 					$ph = new PluploadHandler(array(
 						'action' => 'delete',
-						'target_dir' => $params->upload_path,
+						'target_dir' => $this->resolveTargetDir($params),
 						'file_name' => $params->file_name,
 					));
 
@@ -75,6 +75,7 @@ class PlgFieldsPlupload extends FieldsPlugin
 					$ph = new PluploadHandler(array(
 						// Keep the action aligned with the executed operation.
 						'action' => 'download',
+						'target_dir' => $this->resolveTargetDir($params),
 						'target_dir' => $params->upload_path,
 						'file_name' => $params->file_name,
 					));
@@ -125,9 +126,11 @@ class PlgFieldsPlupload extends FieldsPlugin
 			foreach ($fields as $field) {
 				if ($field->type == 'plupload') {
 					$params->mime_types = $field->fieldparams->get('mime_types');
-					$params->groups = $field->fieldparams->get('groups');
-					$params->access = $this->hasAccess();
-					break;
+						$params->groups = $field->fieldparams->get('groups');
+						$params->storage_mode = $field->fieldparams->get('storage_mode', 'legacy');
+						$params->media_subpath = $field->fieldparams->get('media_subpath', 'plupload');
+						$params->access = $this->hasAccess();
+						break;
 				}
 			}
 		} else {
@@ -139,18 +142,37 @@ class PlgFieldsPlupload extends FieldsPlugin
 			}
 			if (($form = Form::getInstance($scope[1], $xml_path))) {
 				if ( ($field = $form->getField($scope[2])) ) {
-					$params->mime_types = $json->stringToObject($field->getAttribute('mime_types'));
-					$params->groups = $field->getAttribute('groups');
-					$params->access = $this->hasAccess();
+						$params->mime_types = $json->stringToObject($field->getAttribute('mime_types'));
+						$params->groups = $field->getAttribute('groups');
+						$params->storage_mode = $field->getAttribute('storage_mode', 'legacy');
+						$params->media_subpath = $field->getAttribute('media_subpath', 'plupload');
+						$params->access = $this->hasAccess();
 				}
 			}
 		}
 		if (count( (array) $params) == 0) {
 			$params->mime_types = $this->params['mime_types'];
 			$params->groups = $this->params['groups'];
+			$params->storage_mode = $this->params['storage_mode'] ?? 'legacy';
+			$params->media_subpath = $this->params['media_subpath'] ?? 'plupload';
 			$params->access = $this->hasAccess();
 		}
 		return $params;
+	}
+
+	private function resolveTargetDir($params)
+	{
+		$mode = isset($params->storage_mode) ? (string) $params->storage_mode : 'legacy';
+
+		if ($mode !== 'media_manager') {
+			return $params->upload_path;
+		}
+
+		$subpath = isset($params->media_subpath) ? (string) $params->media_subpath : 'plupload';
+		$subpath = trim(str_replace('..', '', $subpath), "/\\");
+		$mediaBase = rtrim(JPATH_ROOT . '/images', "/\\");
+
+		return $subpath !== '' ? $mediaBase . '/' . $subpath : $mediaBase;
 	}
 
 	static function parseMimeExt($mime_types, $format = null)

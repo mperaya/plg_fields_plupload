@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<extension type="plugin" version="4.0" group="fields" method="upgrade">
+<extension type="plugin" version="6.0" group="fields" method="upgrade">
 	<name>plg_fields_plupload</name>
 	<author>Manuel P. Ayala</author>
 	<creationDate>Feb 2022</creationDate>
@@ -26,8 +26,27 @@
 	<config>
 		<fields name="params">
 			<fieldset name="basic">
-				<field
-					name="upload_path"
+					<field
+						name="storage_mode"
+						type="list"
+						label="PLG_FIELDS_PLUPLOAD_PARAMS_STORAGE_MODE_LABEL"
+						description="PLG_FIELDS_PLUPLOAD_PARAMS_STORAGE_MODE_DESC"
+						default="legacy"
+					>
+						<option value="legacy">PLG_FIELDS_PLUPLOAD_STORAGE_LEGACY</option>
+						<option value="media_manager">PLG_FIELDS_PLUPLOAD_STORAGE_MEDIA</option>
+					</field>
+					<field
+						name="media_subpath"
+						type="text"
+						label="PLG_FIELDS_PLUPLOAD_PARAMS_MEDIA_SUBPATH_LABEL"
+						description="PLG_FIELDS_PLUPLOAD_PARAMS_MEDIA_SUBPATH_DESC"
+						class="input-xxlarge input-large-text"
+						default="plupload"
+						showon="storage_mode:media_manager"
+					/>
+					<field
+						name="upload_path"
 					type="text"
 					label="PLG_FIELDS_PLUPLOAD_PARAMS_UPLOAD_PATH_LABEL"
 					description="PLG_FIELDS_PLUPLOAD_PARAMS_UPLOAD_PATH_DESC"
