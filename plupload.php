@@ -76,6 +76,7 @@ class PlgFieldsPlupload extends FieldsPlugin
 						// Keep the action aligned with the executed operation.
 						'action' => 'download',
 						'target_dir' => $this->resolveTargetDir($params),
+						'target_dir' => $params->upload_path,
 						'file_name' => $params->file_name,
 					));
 
