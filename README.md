@@ -1,5 +1,5 @@
 # plg_fields_plupload
-<h3>PLUpload Joomla 4 integration as custom form field.</h3>
+<h3>PLUpload Joomla 6 integration as custom form field.</h3>
 <p>You can add this custom field to any joomla components that support the 
 joomla custom fields system and this will display a button for multiple 
 file upload with the only size limit of the "Max. file size (MB)" param, or
