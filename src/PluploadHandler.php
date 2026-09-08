@@ -18,12 +18,12 @@ namespace Mayala\Plugin\Fields\Plupload;
 // Added for prevent use outside joomla calls
 defined('_JEXEC') or die;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
+use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\Helper\MediaHelper;
 use Exception;
 use Joomla\CMS\Filesystem\File;
 
-//error_log("handler:\n",3,'/tmp/handler.log');
 
 define('PLUPLOAD_MOVE_ERR', 103);
 define('PLUPLOAD_INPUT_ERR', 101);
@@ -45,7 +45,7 @@ class PluploadHandler
 	 * Resource containing the reference to the file that we will write to.
 	 * @property resource $out
 	 */
-	private $out;
+	private $out = null;
 
 	/**
 	 * In case of the error, will contain error code.
@@ -53,16 +53,8 @@ class PluploadHandler
 	 */
 	protected $error = null;
 
-	function __construct($conf = array())
+	public function __construct(array $conf = array())
 	{
-		// Get joomla app for url params check
-		$app = 	Factory::getApplication();
-
-		// Get url params for handler config
-		$chunk    = $app->input->get('chunk', 0);
-		$chunks   = $app->input->get('chunks', 0);
-		$name     = $app->input->get('name', 0);
-		
 		$this->conf = array_merge(
 			array(
 				'file_data_name' => 'file',
@@ -71,14 +63,18 @@ class PluploadHandler
 				'cleanup' => true,
 				'max_file_age' => 5 * 3600, // in hours
 				'max_execution_time' => 5 * 60, // in seconds (5 minutes by default)
-				'chunk' => $chunk,
-				'chunks' => $chunks,
+				'chunk' => 0,
+				'chunks' => 0,
 				'append_chunks_to_target' => true,
 				'combine_chunks_on_complete' => true,
-				'file_name' => $name,
+				'file_name' => '',
+				'overwrite' => false,
+				'restriction_mode' => 'joomla',
+				'custom_mime_types' => array(),
+				'custom_check_mime' => false,
 				'allow_extensions' => false,
 				'delay' => 0, // in seconds
-				'cb_sanitize_file_name' => array($this, 'sanitize_file_name'),
+				'cb_sanitize_file_name' => array(self::class, 'sanitizeFileName'),
 				'cb_check_file' => false,
 				'cb_filesize' => array($this, 'filesize'),
 				// Define error strings from joomla references for joomla i18n support
@@ -92,8 +88,6 @@ class PluploadHandler
 					PLUPLOAD_SECURITY_ERR => Text::_("PLG_FIELDS_PLUPLOAD_SECURITY_ERR"),
 					PLUPLOAD_FILE_EXIST_ERR => Text::_("PLG_FIELDS_PLUPLOAD_FILE_EXIST_ERR")
 					),
-				'debug' => false,
-				'log_path' => '/tmp/error.log'
 				),
 			$conf
 			);
@@ -109,6 +103,7 @@ class PluploadHandler
 		$conf = $this->conf;
 
 		$file_name = "";
+		$currentfile = $this->getInputFile();
 
 		@set_time_limit($conf['max_execution_time']);
 
@@ -127,7 +122,6 @@ class PluploadHandler
 			}
 
 			if (!$conf['file_name']) {
-				$currentfile = Factory::getApplication()->input->files->get('file');
 //				if (!empty($_FILES)) {
 				if (!empty($currentfile)) {
 //					$conf['file_name'] = $_FILES[$conf['file_data_name']]['name'];
@@ -143,6 +137,12 @@ class PluploadHandler
 				$file_name = $conf['file_name'];
 			}
 
+			$checkBeforeWrite = !$conf['chunks'];
+
+			if ($checkBeforeWrite && !$this->isAllowedByRestrictions($file_name, $currentfile)) {
+				throw new Exception('', PLUPLOAD_TYPE_ERR);
+			}
+
 			// Check if file type is allowed
 			if ($conf['allow_extensions']) {
 				if (is_string($conf['allow_extensions'])) {
@@ -155,7 +155,7 @@ class PluploadHandler
 			}
 
 			// Check if target files exists, if not upload it
-			if (file_exists($this->getTargetPathFor($file_name))) {
+			if (file_exists($this->getTargetPathFor($file_name)) && !$conf['overwrite']) {
 				throw new Exception('', PLUPLOAD_FILE_EXIST_ERR);
 			} else {
 				// Check if success lock, else throw error
@@ -166,6 +166,11 @@ class PluploadHandler
 						$result = $this->handleChunk($conf['chunk'], $file_name);
 					} else {
 						$result = $this->handleFile($file_name);
+					}
+					if ($conf['chunks'] && is_string($result)
+						&& !$this->isAllowedByRestrictions($file_name, ['tmp_name' => $result])) {
+						@unlink($result);
+						throw new Exception('', PLUPLOAD_TYPE_ERR);
 					}
 					$this->unlockTheFile($file_name);
 					return $result;
@@ -213,6 +218,74 @@ class PluploadHandler
 		}
 	}
 
+	private function isAllowedByRestrictions($file_name, $file)
+	{
+		$mode = in_array($this->conf['restriction_mode'], ['joomla', 'custom', 'both'], true)
+			? $this->conf['restriction_mode'] : 'joomla';
+		$joomlaAllowed = $mode !== 'custom' && $this->isJoomlaMimeAllowed($file_name, $file);
+		$customAllowed = $mode !== 'joomla' && $this->isCustomMimeAllowed($file_name, $file);
+
+		return $joomlaAllowed || $customAllowed;
+	}
+
+	private function isJoomlaMimeAllowed($file_name, $file)
+	{
+		$params = ComponentHelper::getParams('com_media');
+
+		if (!$params->get('restrict_uploads', 1)) {
+			return true;
+		}
+
+		$extension = strtolower((string) pathinfo($file_name, PATHINFO_EXTENSION));
+
+		if (!MediaHelper::checkFileExtension($extension, 'com_media') || empty($file['tmp_name'])) {
+			return false;
+		}
+
+		if (!$params->get('check_mime', 1)) {
+			return true;
+		}
+
+		$mime = MediaHelper::getMimeType($file['tmp_name'], MediaHelper::isImage($file_name));
+		$allowed = array_map('trim', explode(',', str_replace('\\', '', (string) $params->get(
+			'upload_mime',
+			'image/jpeg,image/gif,image/png,image/bmp,image/webp,image/avif,application/msword,' .
+			'application/excel,application/pdf,application/powerpoint,text/plain,application/x-zip'
+		))));
+
+		return $mime !== false && in_array($mime, $allowed, true);
+	}
+
+	private function isCustomMimeAllowed($file_name, $file)
+	{
+		$extension = strtolower((string) pathinfo($file_name, PATHINFO_EXTENSION));
+
+		foreach ((array) $this->conf['custom_mime_types'] as $type) {
+			$extensions = is_array($type) ? ($type['extensions'] ?? '') : ($type->extensions ?? '');
+			$extensions = array_map('trim', explode(',', (string) $extensions));
+
+			if (!in_array($extension, $extensions, true)) {
+				continue;
+			}
+
+			if (!$this->conf['custom_check_mime']) {
+				return true;
+			}
+
+			$mimes = is_array($type) ? ($type['mime_types'] ?? '') : ($type->mime_types ?? '');
+			$mimes = array_map('trim', explode(',', (string) $mimes));
+			$mime = !empty($file['tmp_name'])
+				? MediaHelper::getMimeType($file['tmp_name'], MediaHelper::isImage($file_name))
+				: false;
+
+			if ($mime !== false && in_array($mime, $mimes, true)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	/**
 	 * Combine chunks for specified file name.
 	 *
@@ -233,11 +306,6 @@ class PluploadHandler
 	protected function handleChunk($chunk, $file_name)
 	{
 		$file_path = $this->getTargetPathFor($file_name);
-
-		$this->log($this->conf['append_chunks_to_target']
-			? "chunks being appended directly to the target $file_path.part"
-			: "standalone chunks being written to $file_path.dir.part"
-			);
 
 		if ($this->conf['append_chunks_to_target']) {
 			$chunk_path = $this->writeUploadTo("$file_path.part", false, 'ab');
@@ -322,7 +390,7 @@ class PluploadHandler
 				throw new Exception('', PLUPLOAD_TMPDIR_ERR);
 			}
 
-			$currentfile = Factory::getApplication()->input->files->get('file');
+			$currentfile = $this->getInputFile();
 //			if (!empty($_FILES)) {
 			if (!empty($currentfile)) {
 //				if (!isset($_FILES[$file_data_name]) || $_FILES[$file_data_name]["error"] || !is_uploaded_file($_FILES[$file_data_name]["tmp_name"])) {
@@ -339,6 +407,28 @@ class PluploadHandler
 			$this->log("ERROR: " . $this->getErrorMessage());
 			return false;
 		}
+	}
+
+	private function getInputFile(): ?array
+	{
+		$file = $this->conf['input_file'] ?? null;
+
+		if (!is_array($file) || (($file['name'] ?? '') === '')) {
+			$file = $_FILES['file'] ?? $file;
+		}
+
+		while (is_array($file) && is_array($file['name'] ?? null)) {
+			$index = array_key_first($file['name']);
+			$file = [
+				'name'     => $file['name'][$index] ?? '',
+				'type'     => $file['type'][$index] ?? '',
+				'tmp_name' => $file['tmp_name'][$index] ?? '',
+				'error'    => $file['error'][$index] ?? UPLOAD_ERR_NO_FILE,
+				'size'     => $file['size'][$index] ?? 0,
+			];
+		}
+
+		return is_array($file) && isset($file['name']) ? $file : null;
 	}
 
 	/**
@@ -471,7 +561,7 @@ class PluploadHandler
 	 */
 	function getFileSizeFor($file_name)
 	{
-		return call_user_func($this->conf['cb_filesize'], getTargetPathFor($file_name));
+		return call_user_func($this->conf['cb_filesize'], $this->getTargetPathFor($file_name));
 	}
 
 
@@ -483,7 +573,7 @@ class PluploadHandler
 	 */
 	function getTargetPathFor($file_name)
 	{
-		$target_dir = rtrim($this->conf['target_dir'], "/\\");
+		$target_dir = rtrim((string) $this->conf['target_dir'], "/\\");
 		$target_dir = str_replace(array("/", "\/"), "/", $target_dir);
 		return $target_dir . "/" . $file_name;
 	}
@@ -537,11 +627,16 @@ class PluploadHandler
 	 */
 	public function purge()
 	{
-		$file = $this->conf['file_name'] ? $this->conf['target_dir'] . '/' . $this->sanitizeFileName2($this->conf['file_name']) : '';
-//error_log("file: ".print_r($file,true)."\n", 3,'/tmp/plupload.log');
+		$file = $this->getRequestedFilePath();
+
+		if ($file === '') {
+			$this->error = PLUPLOAD_INPUT_ERR;
+			return false;
+		}
 
 		try {
 			File::delete($file);
+			return true;
 		} catch (Exception $ex) {
 			$this->error = $ex->getCode();
 			$this->log("ERROR: " . $this->getErrorMessage());
@@ -549,11 +644,17 @@ class PluploadHandler
 		}
 	}
 
-        public function download()
-        {
-		$file = $this->conf['file_name'] ? $this->conf['target_dir'] . '/' . $this->sanitizeFileName2($this->conf['file_name']) : '';
+	public function download ()
+	{
+		$file = $this->getRequestedFilePath();
 
-		$len = filesize( $file );
+		if ($file === '' || !is_file($file)) {
+			$this->error = PLUPLOAD_INPUT_ERR;
+			return false;
+		}
+
+		$len = filesize($file);
+		$filename = $this->sanitizeFileName2((string) ($this->conf['file_name'] ?? ''));
 
 		// Begin writing headers
 		header( 'Pragma: public' );
@@ -563,13 +664,27 @@ class PluploadHandler
 		// Use the desired Content-Type
 		header( 'Content-Type: application/octet-stream');
 		// Force the download
-		header( 'Content-Disposition: attachment; filename="' . $this->conf['file_name'] . '"' );
+		header('Content-Disposition: attachment; filename="' . $filename . '"');
 		header( 'Content-Transfer-Encoding: binary');
 		header( 'Content-Length: ' . $len );
-		@readfile( $file );
-		exit;
-        }
 
+		while (ob_get_level() > 0) {
+			ob_end_clean();
+		}
+
+		set_time_limit(0);
+		readfile($file);
+		exit;
+		
+	}
+
+	private function getRequestedFilePath(): string
+	{
+		$name = $this->sanitizeFileName2((string) ($this->conf['file_name'] ?? ''));
+		$directory = rtrim((string) ($this->conf['target_dir'] ?? ''), "/\\");
+
+		return $name !== '' && $directory !== '' ? $directory . '/' . $name : '';
+	}
 	/**
 	 * Cleans up outdated *.part files and directories inside target_dir.
 	 * Files are considered outdated if they are older than max_file_age hours.
@@ -598,8 +713,8 @@ class PluploadHandler
 	 *
 	 * Removes special characters that are illegal in filenames on certain
 	 * operating systems and special characters requiring special escaping
-	 * to manipulate at the command line. Replaces spaces and consecutive
-	 * dashes with a single dash. Trim period, dash and underscore from beginning
+	 * to manipulate at the command line. Replaces whitespace with underscores.
+	 * Trim period, dash and underscore from beginning
 	 * and end of filename.
 	 *
 	 * @author WordPress
@@ -607,22 +722,18 @@ class PluploadHandler
 	 * @param string $filename The filename to be sanitized
 	 * @return string The sanitized filename
 	 */
-	protected function sanitizeFileName($filename)
+	public static function sanitizeFileName($filename)
 	{
 		$special_chars = array("?", "[", "]", "/", "\\", "=", "<", ">", ":", ";", ",", "'", "\"", "&", "$", "#", "*", "(", ")", "|", "~", "`", "!", "{", "}");
 		$filename = str_replace($special_chars, '', $filename);
-		$filename = preg_replace('/[\s-]+/', '-', $filename);
-		$filename = trim($filename, '.-_');
+		$filename = preg_replace('/\s+/', '_', $filename);
+		$filename = trim($filename, '.-_'??'');
 		return $filename;
 	}
 
 	protected function sanitizeFileName2($filename)
 	{
-		$special_chars = array(" ","?", "[", "]", "/", "\\", "=", "<", ">", ":", ";", ",", "'", "\"", "&", "$", "#", "*", "(", ")", "|", "~", "`", "!", "{", "}");
-		$filename = str_replace($special_chars, '', $filename);
-		$filename = preg_replace('/[\s-]+/', '-', $filename);
-		$filename = trim($filename, '.-_');
-		return $filename;
+		return self::sanitizeFileName($filename);
 	}
 
 	/**
@@ -672,7 +783,7 @@ class PluploadHandler
 		if ($exec_works) {
 			$cmd = ($iswin) ? "for %F in (\"$file\") do @echo %~zF" : "stat -c%s \"$file\"";
 			@exec($cmd, $output);
-			if (is_array($output) && is_numeric($size = trim(implode("\n", $output)))) {
+			if (is_array($output) && is_numeric($size = trim(implode("\n", $output)??''))) {
 				$this->log("filesize obtained via exec.");
 				return $size;
 			}
@@ -748,17 +859,12 @@ class PluploadHandler
 
 
 	/**
-	 * Log the message to the log_path, but only if debug is set to true.
-	 * Each message will get prepended with the current timestamp.
+	 * Compatibility hook retained for the original handler flow.
 	 *
-	 * @param string $msg
+	 * Upload diagnostics must not write file names, paths or request data to logs.
 	 */
-	protected function log($msg)
+	protected function log($message): void
 	{
-		if (!$this->conf['debug']) {
-			return;
-		}
-		$msg = date("Y-m-d H:i:s") . ": $msg\n";
-		file_put_contents($this->conf['log_path'], $msg, FILE_APPEND);
+		// Deliberately disabled: upload details may contain sensitive information.
 	}
 }

@@ -1,0 +1,178 @@
+/**
+ * @package PLUpload for Joomla
+ * @copyright  (C) 2021 Manuel P. Ayala. All rights reserved
+ * @license    GNU Affero General Public License Version 3; http://www.gnu.org/licenses/agpl-3.0.txt 
+ */
+
+.plupload .hide {
+	display: none;
+}
+.plupload-filelist {
+	padding: 1rem;
+	margin-left: 6rem;
+}
+
+.plupload .plupload-meter .controls,
+.plupload .plupload-meter .control-label {
+	width: auto;
+	padding: 2em;
+}
+
+.plupload .plupload-meter .controls {
+	padding-left: 0;
+}
+
+.plupload .modal .btn-danger:not([href]).plupload-cancel {
+    color: var(--white);
+    background: var(--danger);
+    border-color: var(--danger);
+}
+
+.plupload .modal .btn-danger:not([href]):hover.plupload-cancel {
+    color: var(--black);
+    background: var(--warning);
+    border-color: var(--warning);
+}
+
+.plupload .pluploader_uploader,
+.plupload .plupload_wrapper,
+.plupload .plupload_container
+{
+	height: auto;
+}
+
+.modal[id$="_modal-update"] .modal-dialog {
+	width: 65vw;
+	max-width: 65vw;
+	height: auto;
+	min-height: 0;
+	margin: 1.75rem auto;
+	transform: none;
+}
+
+.modal[id$="_modal-update"] .modal-content {
+	width: 100%;
+	height: auto;
+	min-height: 0;
+}
+
+.modal[id$="_modal-update"] .modal-body {
+	padding: 1rem;
+	height: auto !important;
+	min-height: 0;
+	max-height: calc(100vh - 12rem);
+	overflow-y: auto;
+}
+
+.modal[id$="_modal-update"] .modal-header,
+.modal[id$="_modal-update"] .modal-footer {
+	padding: 1rem;
+}
+
+@media (max-width: 767.98px) {
+	.modal[id$="_modal-update"] .modal-dialog {
+		width: calc(100% - 1rem);
+		max-width: calc(100% - 1rem);
+	}
+}
+
+.modal[id$="_modal-delete"] .modal-dialog,
+.modal[id$="_modal-delete-warning"] .modal-dialog {
+	width: 32rem;
+	max-width: calc(100% - 2rem);
+	margin: 3rem auto 1.75rem;
+}
+
+.modal[id$="_modal-delete"] .modal-body,
+.modal[id$="_modal-delete-warning"] .modal-body {
+	padding: 1rem;
+	height: auto;
+}
+
+.modal[id$="_modal-delete"] .modal-footer {
+	padding: 1rem;
+}
+
+.modal[id$="_modal-delete"] .modal-footer > :first-child,
+.modal[id$="_modal-delete-warning"] .modal-footer > :first-child {
+	margin-right: auto;
+}
+
+.modal[id$="_modal-update"] .modal-footer .plupload-overwrite {
+	margin-right: auto;
+}
+
+.modal[id$="_modal-update"] .plupload-overwrite {
+	background-color: var(--danger) !important;
+	border-color: var(--danger) !important;
+	color: var(--white) !important;
+}
+
+.modal[id$="_modal-update"] .plupload-overwrite:hover,
+.modal[id$="_modal-update"] .plupload-discard-duplicate:hover {
+	filter: brightness(0.85);
+}
+
+.modal[id$="_modal-update"] .plupload-discard-duplicate {
+	background: var(--success) !important;
+	background-image: none !important;
+	border-color: var(--success) !important;
+	color: var(--white) !important;
+}
+
+.modal[id$="_modal-update"] .plupload-discard-duplicate .fa-ban {
+	color: var(--white) !important;
+	background-color: transparent !important;
+	block-size: auto !important;
+	display: inline-block !important;
+	inline-size: auto !important;
+	line-height: 1 !important;
+	margin: 0 .35rem 0 0 !important;
+}
+
+.plupload .plupload-overwrite-row {
+	align-items: flex-start;
+}
+
+.plupload .plupload-overwrite-row .alert {
+	display: flex;
+	align-items: center;
+	height: calc(1.5em + .75rem + 2px);
+	min-height: 0;
+	box-sizing: border-box;
+	margin-top: 0 !important;
+	margin-bottom: 0 !important;
+}
+
+.plupload .plupload-overwrite-row .plupload-overwrite {
+	height: calc(1.5em + .75rem + 2px);
+	align-self: flex-start;
+	margin-top: 0 !important;
+	margin-bottom: 0 !important;
+}
+
+.plupload .plupload-overwrite-row .plupload-discard-duplicate {
+	height: calc(1.5em + .75rem + 2px);
+	align-self: flex-start;
+	margin-top: 0 !important;
+	margin-bottom: 0 !important;
+}
+
+.modal[id$="_modal-delete"] .modal-footer .plupload-delete-remove,
+.modal[id$="_modal-delete-warning"] .modal-footer .plupload-delete-remove {
+	background-color: var(--danger) !important;
+	border-color: var(--danger) !important;
+	color: var(--white) !important;
+}
+
+.modal[id$="_modal-delete"] .modal-footer .plupload-delete-keep {
+	background-color: var(--success) !important;
+	border-color: var(--success) !important;
+	color: var(--white) !important;
+}
+
+.modal[id$="_modal-delete"] .modal-footer .plupload-delete-remove:hover,
+.modal[id$="_modal-delete"] .modal-footer .plupload-delete-keep:hover,
+.modal[id$="_modal-delete-warning"] .modal-footer .plupload-delete-remove:hover {
+	filter: brightness(0.85);
+}

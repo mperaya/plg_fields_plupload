@@ -17,16 +17,15 @@
 					type="text"
 					label="PLG_FIELDS_PLUPLOAD_PARAMS_MEDIA_SUBPATH_LABEL"
 					description="PLG_FIELDS_PLUPLOAD_PARAMS_MEDIA_SUBPATH_DESC"
-					class="input-xxlarge input-large-text"
 					default="plupload"
 					showon="storage_mode:media_manager"
 				/>
-				<field
-					name="upload_path"
+			<field
+				name="upload_path"
 				type="text"
 				label="PLG_FIELDS_PLUPLOAD_PARAMS_UPLOAD_PATH_LABEL"
 				description="PLG_FIELDS_PLUPLOAD_PARAMS_UPLOAD_PATH_DESC"
-				class="input-xxlarge input-large-text"
+				class="col-md-10 input-large-text"
 				default="/tmp"
 				required="true"
 				filter="path"
@@ -56,10 +55,33 @@
 				type="text"
 				label="PLG_FIELDS_PLUPLOAD_PARAMS_UPLOAD_FIELD_LABEL"
 				description="PLG_FIELDS_PLUPLOAD_PARAMS_UPLOAD_FIELD_DESC"
-				class="input-xxlarge input-large-text"
+				class="col-md-10 input-large-text"
 				default=""
 				showon="multiple_uploads:0"
 			/>
+			<field
+				name="mime_restriction"
+				type="list"
+				label="PLG_FIELDS_PLUPLOAD_PARAMS_MIME_RESTRICTION_LABEL"
+				description="PLG_FIELDS_PLUPLOAD_PARAMS_MIME_RESTRICTION_DESC"
+				default="joomla"
+			>
+				<option value="joomla">PLG_FIELDS_PLUPLOAD_MIME_RESTRICTION_JOOMLA</option>
+				<option value="custom">PLG_FIELDS_PLUPLOAD_MIME_RESTRICTION_CUSTOM</option>
+				<option value="both">PLG_FIELDS_PLUPLOAD_MIME_RESTRICTION_BOTH</option>
+			</field>
+			<field
+				name="custom_check_mime"
+				type="radio"
+				label="PLG_FIELDS_PLUPLOAD_PARAMS_CUSTOM_CHECK_MIME_LABEL"
+				description="PLG_FIELDS_PLUPLOAD_PARAMS_CUSTOM_CHECK_MIME_DESC"
+				layout="joomla.form.field.radio.switcher"
+				default="0"
+				showon="mime_restriction:custom[OR]mime_restriction:both"
+			>
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
 			<field
 				name="mime_types"
 				type="subform"
@@ -69,6 +91,7 @@
 				translate_default="true"
 				layout="joomla.form.field.subform.repeatable-table"
 				default="PLG_FIELDS_PLUPLOAD_MIME_TYPES_DEFAULT"
+				showon="mime_restriction:custom[OR]mime_restriction:both"
 			>
 				<form>
 					<field
@@ -81,6 +104,12 @@
 						type="text"
 						label="PLG_FIELDS_PLUPLOAD_MULTIPLE_VALUE"
 						/>
+						<field
+							name="mime_types"
+							type="text"
+							label="PLG_FIELDS_PLUPLOAD_MIME_TYPES_VALUE"
+							showon="custom_check_mime:1"
+							/>
 				</form>
 			</field>
 			<field
@@ -88,7 +117,7 @@
 				type="number"
 				label="PLG_FIELDS_PLUPLOAD_PARAMS_MAX_FILE_SIZE_LABEL"
 				description="PLG_FIELDS_PLUPLOAD_PARAMS_MAX_FILE_SIZE_DESC"
-				class="input-small"
+				class="col-md-2"
 				default="0"
 			/>
 			<field
@@ -104,7 +133,7 @@
 				label="PLG_FIELDS_PLUPLOAD_PARAMS_WIDTH_LABEL"
 				description="PLG_FIELDS_PLUPLOAD_PARAMS_WIDTH_DESC"
 				default=""
-				class="input-small"
+				class="col-md-2"
 			/>
 			<field
 				name="height"
@@ -112,13 +141,20 @@
 				label="PLG_FIELDS_PLUPLOAD_PARAMS_HEIGHT_LABEL"
 				description="PLG_FIELDS_PLUPLOAD_PARAMS_HEIGHT_DESC"
 				default=""
-				class="input-small"
+				class="col-md-2"
 			/>
 			<field
-				name="groups"
+				name="upload_groups"
 				type="usergrouplist"
-				label="PLG_FIELDS_PLUPLOAD_PARAMS_GROUPS_LABEL"
-				description="PLG_FIELDS_PLUPLOAD_PARAMS_GROUPS_DESC"
+				label="PLG_FIELDS_PLUPLOAD_PARAMS_UPLOAD_GROUPS_LABEL"
+				description="PLG_FIELDS_PLUPLOAD_PARAMS_UPLOAD_GROUPS_DESC"
+				multiple="multiple"
+			/>
+			<field
+				name="download_groups"
+				type="usergrouplist"
+				label="PLG_FIELDS_PLUPLOAD_PARAMS_DOWNLOAD_GROUPS_LABEL"
+				description="PLG_FIELDS_PLUPLOAD_PARAMS_DOWNLOAD_GROUPS_DESC"
 				multiple="multiple"
 			/>
 		</fieldset>
