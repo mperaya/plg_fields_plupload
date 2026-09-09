@@ -1,0 +1,67 @@
+{
+  "$schema": "https://developer.joomla.org/schemas/json-schema/web_assets.json",
+  "name": "plg_fields_plupload",
+  "version": "3.0.0",
+  "assets": [
+    {
+      "name": "plg_fields_plupload.style",
+      "type": "style",
+      "uri": "plg_fields_plupload/plupload.css",
+      "dependencies": ["fontawesome"],
+      "version": "3.0.0"
+    },
+    {
+      "name": "plg_fields_plupload.jquery-ui.style",
+      "type": "style",
+      "uri": "plg_fields_plupload/jquery-ui.min.css"
+    },
+    {
+      "name": "plg_fields_plupload.ui.style",
+      "type": "style",
+      "uri": "plg_fields_plupload/jquery.ui.plupload.css",
+      "dependencies": ["plg_fields_plupload.jquery-ui.style"]
+    },
+    {
+      "name": "plg_fields_plupload.jquery-ui",
+      "type": "script",
+      "uri": "plg_fields_plupload/jquery-ui.min.js",
+      "dependencies": ["jquery"]
+    },
+    {
+      "name": "plg_fields_plupload.core",
+      "type": "script",
+      "uri": "plg_fields_plupload/plupload.full.min.js"
+    },
+    {
+      "name": "plg_fields_plupload.script",
+      "type": "script",
+      "uri": "plg_fields_plupload/jquery.ui.plupload.min.js",
+      "dependencies": [
+        "jquery",
+        "plg_fields_plupload.jquery-ui",
+        "plg_fields_plupload.core"
+      ]
+    },
+    {
+      "name": "plg_fields_plupload.field",
+      "type": "script",
+      "uri": "plg_fields_plupload/plupload-field.js",
+      "version": "3.0.0",
+      "dependencies": ["plg_fields_plupload.core"]
+    },
+    {
+      "name": "plg_fields_plupload.single",
+      "type": "script",
+      "uri": "plg_fields_plupload/plupload-single.js",
+      "version": "3.0.0",
+      "dependencies": ["plg_fields_plupload.field", "plg_fields_plupload.script"]
+    },
+    {
+      "name": "plg_fields_plupload.multiple",
+      "type": "script",
+      "uri": "plg_fields_plupload/plupload-multiple.js",
+      "version": "3.0.0",
+      "dependencies": ["plg_fields_plupload.field", "plg_fields_plupload.script"]
+    }
+  ]
+}
